@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Holymoly Dragable Slider</title>
+  <link rel="stylesheet" href="../dist/style.css">
+</head>
+
+<body>
+  <div class="content">
+    <div class="slider-container">
+
+
+      <div class="hm-slider casino" data-hm-slider data-min="100" data-max="60000">
+        <div class="hm-slider__underlay">
+
+          <div class="hm-slider__trigger-1" data-trigger="one">  </div>
+          <div class="hm-slider__scroll-indicator" data-indicator>  </div>
+          <div class="hm-slider__trigger-2" data-trigger="two">  </div>
+
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      border: 0;
+      font-size: 100%;
+      font: inherit;
+      vertical-align: baseline;
+      box-sizing: border-box;
+      /* border-box from body (experiment)  */
+    }
+
+    /* HTML5 display-role reset for older browsers */
+
+    html {
+      height: 100vh;
+    }
+
+    body {
+      height: 100%;
+    }
+
+    .content {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+    }
+
+    .slider-container {
+      display: flex;
+      width: 200px;
+      justify-content: center;
+      align-items: center;
+    }
+  </style>
+</body>
+<script src="../dist/index.js"></script>
+
+</html>
