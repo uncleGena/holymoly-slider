@@ -6,12 +6,14 @@ export default (function () {
   const triggerOne = document.querySelector('[data-hm-slider] [data-trigger="one"]')
   const triggerTwo = document.querySelector('[data-hm-slider] [data-trigger="two"]')
   const indicator = document.querySelector('[data-hm-slider] [data-indicator]')
-
   // TODO check if elements not null
+
+  // let touchDevice = 'ontouchstart' in document.documentElement
+  let isTouchDevice = false;
 
   let clickCoord = null
   let active = false
-  // let activeTrigger = null // 'one' || 'two'
+  let activeTrigger = null // 'one' || 'two'
 
   // trigger ONE
   const triggerOneLeftInit = parseInt(window.getComputedStyle(triggerOne).left)
@@ -25,38 +27,83 @@ export default (function () {
 
   const sliderWidth = slider.offsetWidth
 
-  let indicatorLeftInit = parseInt(window.getComputedStyle(indicator).left)
-  let indicatorRightInit = parseInt(window.getComputedStyle(indicator).right)
+  const indicatorLeftInit = parseInt(window.getComputedStyle(indicator).left)
+  let indicatorLeft = indicatorLeftInit
+  const indicatorRightInit = parseInt(window.getComputedStyle(indicator).right)
+  let indicatorRight = indicatorRightInit
+
+  const eventStart = (ev, triggerType) => {
+    console.log(ev)
+    clickCoord = evPageX(ev, isTouchDevice)
+    active = true
+    activeTrigger = triggerType
+  }
+
+  const evPageX = (ev, isTouchDevice) => isTouchDevice ? ev.changedTouches[0].clientX : ev.clientX
 
   triggerOne.addEventListener('mousedown', function (ev) {
-    clickCoord = ev.pageX
-    active = true
-    // activeTrigger = 'one'
+    eventStart(ev, 'one')
   })
-  // triggerTwo.addEventListener('mousedown', function (ev) {
-  //   clickCoord = ev.pageX
-  //   active = true
-  //   activeTrigger = 'two'
-  // })
+  triggerOne.addEventListener('touchstart', function (ev) {
+    isTouchDevice = true
+    eventStart(ev, 'one')
+  })
+  triggerTwo.addEventListener('mousedown', function (ev) {
+    eventStart(ev, 'two')
+  })
+  triggerTwo.addEventListener('touchstart', function (ev) {
+    isTouchDevice = true
+    eventStart(ev, 'two')
+  })
 
-  document.addEventListener('mouseup', function (ev) {
+  const eventStop = function (ev) {
+    // console.log('stop::', ev)
     active = false
-    triggerOneLeft = parseInt(triggerOne.style.left)
-  })
-
-  document.addEventListener('mousemove', function (ev) {
-    if (active) {
-      moveIndicator(ev)
-      moveTrigger(ev)
+    if (activeTrigger === 'one') {
+      triggerOneLeft = parseInt(triggerOne.style.left)
+    } else if (activeTrigger === 'two') {
+      triggerTwoRight = parseInt(triggerTwo.style.right)
     }
-  })
+  }
 
-  const getMovedValue = function (newVal, triggerOneLeftInit, indicatorRightInit) {
+  document.addEventListener('mouseup', eventStop)
+  document.addEventListener('touchend', eventStop)
+
+  const eventMove = function (ev) {
+    // console.log(ev)
+    if (active) {
+      moveIndicator(ev, activeTrigger)
+      moveTrigger(ev, activeTrigger)
+    }
+  }
+
+  document.addEventListener('mousemove', eventMove)
+  document.addEventListener('touchmove', eventMove)
+
+  const getMovedValueFor = function (oneOrTwo) {
+    if (oneOrTwo === 'one') {
+      return getMovedValueFroOne
+    } else if (oneOrTwo === 'two') {
+      return getMovedValueFroTwo
+    }
+  }
+
+  const getMovedValueForOne = function (newVal, triggerOneLeftInit) {
     const maxAllow = triggerOneMaxAllow()
 
-    // if (newVal <= maxAllow && newVal >= triggerOneLeftInit) return newVal
-    // if (newVal <= maxAllow && newVal < triggerOneLeftInit) return triggerOneLeftInit
-    // if (newVal > maxAllow) return maxAllow
+    if (newVal <= maxAllow) {
+      if (newVal >= triggerOneLeftInit) {
+        return newVal
+      } else {
+        return triggerOneLeftInit
+      }
+    } else {
+      return maxAllow
+    }
+  }
+
+  const getMovedValueForTwo = function (newVal, triggerTwoRightInit) {
+    const maxAllow = triggerTwoMaxAllow()
 
     if (newVal <= maxAllow) {
       if (newVal >= triggerOneLeftInit) {
@@ -70,19 +117,72 @@ export default (function () {
   }
 
   const triggerOneMaxAllow = function () {
-    return sliderWidth - indicatorRightInit - triggerOneWidth
+    return sliderWidth - triggerOneWidth - triggerTwoWidth - triggerTwoRight
+  }
+  const triggerTwoMaxAllow = function () {
+    return sliderWidth - triggerOneWidth - triggerTwoWidth - triggerOneLeft
   }
 
-  const moveTrigger = function (ev) {
-    const newVal = triggerOneLeft + (ev.pageX - clickCoord)
-    const moveVal = getMovedValue(newVal, triggerOneLeftInit, indicatorRightInit)
-    triggerOne.style.left = moveVal + 'px'
+  const moveTrigger = function (ev, activeTrigger) {
+    if (activeTrigger === 'one') {
+      const newVal = triggerOneLeft + movedValue(ev, clickCoord, activeTrigger)
+      const moveVal = getMovedValueForOne(newVal, triggerOneLeftInit)
+      triggerOne.style.left = moveVal + 'px'
+    } else if (activeTrigger === 'two') {
+      const newVal = triggerTwoRight + movedValue(ev, clickCoord, activeTrigger)
+      const moveVal = getMovedValueForTwo(newVal, triggerOneLeftInit)
+      triggerTwo.style.right = moveVal + 'px'
+    }
   }
 
-  const moveIndicator = function (ev) {
-    const newVal = triggerOneLeft + (ev.pageX - clickCoord) + triggerOneWidth
-    const moveVal = newVal >= indicatorLeftInit ? newVal : indicatorLeftInit
-    indicator.style.left = moveVal + 'px'
+  const movedValue = (ev, clickCoord, trigg) => {
+    if (trigg === 'one') {
+      return evPageX(ev, isTouchDevice) - clickCoord
+    } else if (trigg === 'two') {
+      return clickCoord - evPageX(ev, isTouchDevice)
+    }
+  }
+
+  const getMovedValueForIndicatorLeft = function (newVal, indicatorLeftInit) {
+    const maxAllow = triggerOneMaxAllow() + triggerOneWidth
+    if (newVal >= indicatorLeftInit) {
+      if (newVal <= maxAllow) {
+        return newVal
+      } else {
+        return maxAllow
+      }
+    } else {
+      return indicatorLeftInit
+    }
+  }
+
+  const getMovedValueForIndicatorRight = function (newVal, indicatorRightInit) {
+    const maxAllow = triggerTwoMaxAllow() + triggerTwoWidth
+    if (newVal >= indicatorRightInit) {
+      if (newVal <= maxAllow) {
+        return newVal
+      } else {
+        return maxAllow
+      }
+    } else {
+      return indicatorRightInit
+    }
+  }
+
+  const moveIndicator = function (ev, activeTrigger) {
+    if (activeTrigger === 'one') {
+
+      const newVal = triggerOneLeft + movedValue(ev, clickCoord, activeTrigger) + triggerOneWidth
+      const moveVal = getMovedValueForIndicatorLeft(newVal, indicatorLeftInit)
+      indicator.style.left = moveVal + 'px'
+      indicatorLeft = moveVal
+    } else if (activeTrigger === 'two') {
+
+      const newVal = triggerTwoRight + movedValue(ev, clickCoord, activeTrigger) + triggerTwoWidth
+      const moveVal = getMovedValueForIndicatorRight(newVal, indicatorRightInit)
+      indicator.style.right = moveVal + 'px'
+      indicatorRight = moveVal
+    }
   }
 
 })()
