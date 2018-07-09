@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Holymoly Dragable Slider</title>
-  <link rel="stylesheet" href="../dist/style.css">
+  <link rel="stylesheet" href="./dist/hm-slider.css">
 </head>
 
 <body>
@@ -17,9 +17,9 @@
       <div class="hm-slider casino" data-hm-slider data-min="100" data-max="60000">
         <div class="hm-slider__underlay">
 
-          <div class="hm-slider__trigger-1" data-trigger="one">  </div>
-          <div class="hm-slider__scroll-indicator" data-indicator>  </div>
-          <div class="hm-slider__trigger-2" data-trigger="two">  </div>
+          <div class="hm-slider__trigger-1" data-trigger="left"> </div>
+          <div class="hm-slider__scroll-indicator" data-indicator> </div>
+          <div class="hm-slider__trigger-2" data-trigger="right"> </div>
 
         </div>
       </div>
@@ -64,6 +64,24 @@
     }
   </style>
 </body>
-<script src="../dist/index.js"></script>
+<script src="./dist/hm-slider.js"></script>
+
+
+<script>
+  const change = () => console.log('changing::')
+  const init = () => console.log('init::')
+  const active = () => console.log('active::')
+  const disactive= () => console.log('disactive::')
+
+  const slider = hmSlider({
+    selector: '[data-hm-slider]',
+    onInit: init,
+    onActive: active,
+    onChange: change,
+    onDisactive: disactive
+  })
+
+  // slider.onChange(change)
+</script>
 
 </html>

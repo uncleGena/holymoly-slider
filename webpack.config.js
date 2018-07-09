@@ -5,16 +5,19 @@ NODE_ENV = 'development'
 
 module.exports = {
   mode: "development", // enabled useful tools for development
-  entry: {
-    jsapp: './src/index.js',
-  },
+  entry: './src/index.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
     publicPath: '/dist/',
-    filename: 'index.js'
+    filename: 'hm-slider.js',
+    libraryTarget: 'umd',
+    // umdNamedDefine: true,
+    library: 'hmSlider',
+    libraryExport: 'hmSlider'
+    // globalObject: 'this'
   },
   devServer: {
-    contentBase: path.join(__dirname, 'src'),
+    contentBase: path.join(__dirname, '.'),
     compress: true,
     port: 4444,
     stats: {
@@ -65,7 +68,7 @@ module.exports = {
   },
   plugins: [
     new ExtractTextPlugin({
-      filename: 'style.css'
+      filename: 'hm-slider.css'
     }),
   ],
   performance: {
