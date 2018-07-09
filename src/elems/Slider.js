@@ -9,53 +9,28 @@ export default class Slider {
     onChange,
     onDisactive
   } = {}) {
-    this.sliderElem = document.querySelector(selector)
-    // TODO check if elements not null
-
+    this.selector = selector
     this.onChange = onChange
     this.onInit = onInit
     this.onActive = onActive
     this.onDisactive = onDisactive
-
+    
+    this.sliderMinName = 'hmSliderMin'
+    this.sliderMaxName = 'hmSliderMax'
+    this.sliderStepName = 'hmSliderStep'
+    
+    this.sliderElem = document.querySelector(selector)
+    // TODO check if elements not null
+    
     this.sliderWidth = this.sliderElem.offsetWidth
-
-    // this.isTouchDevice = false
+    this.dataSet = this.sliderElem.dataset
+    this.minMaxDiapazon = this.dataSet[this.sliderMaxName] - this.dataSet[this.sliderMinName]
 
     // left trigger (левый ползунок)
-    this.triggerLeft = new Trigger({
-      name: 'left',
-      selector: selector,
-      sliderWidth: this.sliderWidth,
-      onChange: ({
-        ev,
-        name,
-        isTouch,
-        width,
-        value
-      }) => {
-        this.triggerRight.anotherTriggerWidth = width
-        this.triggerRight.anotherTriggerValue = value
-        this.indicatorSideLeft.setValue(value + width)
-      }
-    })
+    this.triggerLeft = new Trigger(this.triggerProps(this.sliderMinName, 'left', 'triggerRight', 'indicatorSideLeft'))
 
     // right trigger (правый ползунок)
-    this.triggerRight = new Trigger({
-      name: 'right',
-      selector: selector,
-      sliderWidth: this.sliderWidth,
-      onChange: ({
-        ev,
-        name,
-        isTouch,
-        width,
-        value
-      }) => {
-        this.triggerLeft.anotherTriggerWidth = width
-        this.triggerLeft.anotherTriggerValue = value
-        this.indicatorSideRight.setValue(value + width)
-      }
-    })
+    this.triggerRight = new Trigger(this.triggerProps(this.sliderMaxName, 'right', 'triggerLeft', 'indicatorSideRight'))
 
     // seft side of middle indicator
     this.indicatorSideLeft = new IndicatorSide({
@@ -68,5 +43,37 @@ export default class Slider {
       selector,
       side: 'right'
     })
+  }
+
+  triggerProps(dataValueName, direction, triggerInstName, indicatorInstName) {
+    return {
+      dataName: dataValueName,
+      dataValue: parseInt(this.dataSet[dataValueName]),
+      minMaxDiapazon: this.minMaxDiapazon,
+      name: direction,
+      selector: this.selector,
+      sliderWidth: this.sliderWidth,
+      step: this.dataSet[this.sliderStepName],
+      onStart: (width, value) => {
+
+        // push to task queue in order to wait until another trigger instance creates
+        setTimeout(() => {
+          this[triggerInstName].anotherTriggerWidth = width
+          this[triggerInstName].anotherTriggerValue = value
+        })
+      },
+      onChange: ({
+        ev,
+        name,
+        isTouch,
+        width,
+        value
+      }) => {
+        // console.log('changed::', name, value)
+        this[triggerInstName].anotherTriggerWidth = width
+        this[triggerInstName].anotherTriggerValue = value
+        this[indicatorInstName].setValue(value + width)
+      }
+    }
   }
 }

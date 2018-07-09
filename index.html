@@ -14,7 +14,12 @@
     <div class="slider-container">
 
 
-      <div class="hm-slider casino" data-hm-slider data-min="100" data-max="60000">
+      <div class="hm-slider casino" 
+        data-hm-slider 
+        data-hm-slider-min="700" 
+        data-hm-slider-max="4000"
+        data-hm-slider-step="7"
+      >
         <div class="hm-slider__underlay">
 
           <div class="hm-slider__trigger-1" data-trigger="left"> </div>
@@ -78,7 +83,8 @@
     onInit: init,
     onActive: active,
     onChange: change,
-    onDisactive: disactive
+    onDisactive: disactive,
+    step: 6
   })
 
   // slider.onChange(change)

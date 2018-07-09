@@ -1,13 +1,23 @@
 export default class Trigger {
   constructor({
+    dataName,
+    dataValue = 0,
     name,
     selector,
     sliderWidth,
-    onChange
+    minMaxDiapazon,
+    onStart = () => {},
+    onChange = () => {},
+    step = null
   }) {
+    this.dataName = dataName
+    this.dataValue = dataValue
     this.name = name
     this.triggerElem = document.querySelector(`${selector} [data-trigger="${name}"]`)
+    this.onStart = onStart
     this.onChange = onChange
+    this.step = step
+    this.minMaxDiapazon = minMaxDiapazon
 
     this.triggerMinInit = parseInt(window.getComputedStyle(this.triggerElem)[name])
     this.triggerMin = this.triggerMinInit
@@ -21,8 +31,11 @@ export default class Trigger {
     this.anotherTriggerWidth = null
     this.anotherTriggerValue = null
 
+    this.onStart(this.triggerElemWidth, this.triggerMin)
+
     // EVENTS
     this.triggerElem.addEventListener('mousedown', ev => {
+      this.isTouchDevice = false
       this.eventStart(ev)
     })
     this.triggerElem.addEventListener('touchstart', ev => {
@@ -33,6 +46,8 @@ export default class Trigger {
     document.addEventListener('touchend', this.eventStop.bind(this))
     document.addEventListener('mousemove', this.eventMove.bind(this))
     document.addEventListener('touchmove', this.eventMove.bind(this))
+
+    this.updateVusualValue(dataValue)
   }
 
   // tested
@@ -49,7 +64,6 @@ export default class Trigger {
 
   eventMove(ev) {
     if (this.active) {
-      // this.onChange(ev, this.name)
       this.moveTrigger(ev, this.activeTrigger)
     }
   }
@@ -79,6 +93,39 @@ export default class Trigger {
     }
   }
 
+  getCurrentStep(currVal, step, fullIndicatorWidth) {
+    const stepVal = fullIndicatorWidth / step
+    const currentStep = (currVal / stepVal).toFixed(0)
+    return currentStep
+  }
+
+  getMagneticMovedValue(val, step, fullIndicatorWidth) {
+    const stepVal = fullIndicatorWidth / step
+    const currentStep = (val / stepVal).toFixed(0)
+    return currentStep * stepVal
+  }
+
+  getMinMaxCurrentStep(minMaxDiapazon, totalSteps, currStep, valuePerStep) {
+    if (this.dataName === 'hmSliderMin') {
+      const val = (totalSteps - currStep) * valuePerStep
+      return minMaxDiapazon - val + this.dataValue
+    } else if (this.dataName === 'hmSliderMax') {
+      // const leftValue = 700
+      const val = currStep * valuePerStep
+      return minMaxDiapazon - val + (this.dataValue - minMaxDiapazon)
+    }
+  }
+
+  getVisualValue(minMaxDiapazon, totalSteps, currStep) {
+    const valuePerStep = minMaxDiapazon / parseInt(totalSteps)
+    const currentValue = this.getMinMaxCurrentStep(minMaxDiapazon, totalSteps, currStep, valuePerStep)
+    return currentValue
+  }
+
+  updateVusualValue(visualValue) {
+    this.triggerElem.innerHTML = visualValue.toFixed(0)
+  }
+
   triggerElemMaxAllow() {
     return this.sliderWidth - this.triggerElemWidth - this.anotherTriggerWidth - this.anotherTriggerValue
   }
@@ -87,21 +134,25 @@ export default class Trigger {
     const newVal = this.triggerMin + this.movedValue(ev, this.clickCoord, activeTrigger)
     const maxAllow = this.triggerElemMaxAllow()
     const moveVal = this.getExactMovedValue(newVal, this.triggerMinInit, maxAllow)
+    const fullIndicatorWidth = this.sliderWidth - this.triggerElemWidth - this.anotherTriggerWidth
+    const currentStep = this.getCurrentStep(moveVal, this.step, fullIndicatorWidth)
+    const magneticVal = this.getMagneticMovedValue(moveVal, this.step, fullIndicatorWidth)
+    const visualValue = this.getVisualValue(this.minMaxDiapazon, this.step, currentStep)
 
     // если зничение реально изменилось
-    if (this.moveValOld !== moveVal) {
+    if (this.moveValOld !== magneticVal) {
       this.onChange({
         ev,
         name: this.name,
         isTouch: this.isTouchDevice,
         width: this.triggerElemWidth,
-        value: moveVal
+        value: magneticVal
       })
-
-      this.moveValOld = moveVal
+      this.updateVusualValue(visualValue)
+      this.moveValOld = magneticVal
     }
 
-    this.triggerElem.style[this.name] = moveVal + 'px'
+    this.triggerElem.style[this.name] = magneticVal + 'px'
   }
 
 }
