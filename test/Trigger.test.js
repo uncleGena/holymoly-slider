@@ -42,7 +42,7 @@ beforeEach(function () {
   trigger = new Trigger({
     dataName: 'hmSliderMin',
     dataValue: 123,
-    name: 'left',
+    cssName: 'left',
     element: element,
     sliderWidth: 200,
     minMaxDiapazon: 345
@@ -145,10 +145,10 @@ describe('Trigger class element', function () {
       cursorValOnLeft = trigger.movedCursorValue(ev, clicked)
       assert(cursorValOnLeft === moved - clicked, 'asdfa sdf asdf asdf ')
     })
-
+    
     it('should get right value of cursor on right side', function () {
-      trigger.name = 'right',
-        trigger.dataName = 'hmSliderMax'
+      trigger.cssName = 'right',
+      trigger.dataName = 'hmSliderMax'
       cursorValOnRight = trigger.movedCursorValue(ev, 345)
       assert(cursorValOnRight === clicked - moved, 'asdfa sdf asdf asdf ')
     })
@@ -209,7 +209,7 @@ describe('Trigger class element', function () {
 
     it('should return visual value depending on step hmSliderMax', function () {
       trigger.dataName = 'hmSliderMax'
-      trigger.name = 'right'
+      trigger.cssName = 'right'
       trigger.dataValue = 3333
       const val = parseFloat(trigger.getMinMaxCurrentStep(2556, 7, 2, 365.14285714285717))
       assert(val === 2602.714285714286, 'return wrong value for hmSliderMax')
@@ -221,6 +221,7 @@ describe('Trigger class element', function () {
       const hasClassBefore = trigger.triggerElem.classList.contains('trigger-highlighted')
       trigger.addHighlightedClass()
       const hasClassAfter = trigger.triggerElem.classList.contains('trigger-highlighted')
+      assert(trigger.highlighted === true, 'highlighted did not set')
       assert(hasClassBefore === false, 'class is already present')
       assert(hasClassAfter === true, 'did not add class')
       assert(hasClassBefore !== hasClassAfter, 'addHighlightedClass does not add class')
@@ -233,6 +234,7 @@ describe('Trigger class element', function () {
       const hasClassBefore = trigger.triggerElem.classList.contains('trigger-highlighted')
       trigger.removeHighlightedClass()
       const hasClassAfter = trigger.triggerElem.classList.contains('trigger-highlighted')
+      assert(trigger.highlighted === false, 'highlighted property did not unset')
       assert(hasClassBefore === true, 'class is not present')
       assert(hasClassAfter === false, 'did not remove class')
       assert(hasClassBefore !== hasClassAfter, 'addHighlightedClass does not add class')
@@ -354,6 +356,17 @@ describe('Trigger class element', function () {
       assert(trigger.valueFormated(1) === '1.0', 'wrong val for 1')
       assert(trigger.valueFormated(0.3) === '0.30', 'wrong val for 0.3')
       assert(trigger.valueFormated(0) === '0', 'wrong val for 0')
+    })
+  })
+
+  describe('applyTriggerPosition', function () {
+    it('should change left/right style of trigger', function () {
+      const val = 333
+      const pos_before = trigger.triggerElem.style.left
+      trigger.applyTriggerPosition(val)
+      const pos_affter = trigger.triggerElem.style.left
+      assert(pos_before !== pos_affter, 'position did not change')
+      assert(pos_affter === val + 'px', 'changed to wrong position')
     })
   })
 })

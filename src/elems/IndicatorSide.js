@@ -9,7 +9,13 @@ export default class IndicatorSide {
     this.valueCurr = this.valueInit
   }
 
-  setValue(val) {
+  get valueCurr() {
+    return this.$valueCurr
+  }
+
+  set valueCurr(val) {
+    this.$valueCurr = val
     this.indicator.style[this.side] = val + 'px'
   }
+
 }

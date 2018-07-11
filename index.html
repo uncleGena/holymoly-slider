@@ -81,7 +81,6 @@
       data-hm-slider 
       data-hm-slider-min="0" 
       data-hm-slider-max="100" 
-      data-hm-slider-step="4" 
       data-hm-slider-sign="%">
         <div class="hm-slider__underlay">
     
@@ -124,11 +123,12 @@
       justify-content: center;
       align-items: center;
       height: 100%;
+      padding: 50px;
     }
 
     .slider-container {
       display: flex;
-      width: 200px;
+      width: 100%;
       margin: 20px;
       justify-content: center;
       align-items: center;
@@ -139,7 +139,7 @@
 
 
 <script>
-  const change = () => console.log('changing::')
+  const change = (props) => console.log(props)
   const init = () => console.log('init::')
   const active = () => console.log('active::')
   const disactive = () => console.log('disactive::')
@@ -159,18 +159,6 @@
     })
 
   })
-
-  // const slider = hmSlider({
-  //   selector: '[data-hm-slider]',
-  //   onInit: init,
-  //   onActive: active,
-  //   onChange: change,
-  //   onDisactive: disactive,
-  //   formatNumber: true,
-  //   step: 6
-  // })
-
-  // slider.onChange(change)
 </script>
 
 </html>

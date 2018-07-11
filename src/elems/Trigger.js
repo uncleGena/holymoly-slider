@@ -2,7 +2,8 @@ export default class Trigger {
   constructor({
     dataName = 'hmSliderMin',
     dataValue,
-    name,
+    cssName,
+    opositeCssName,
     element,
     sliderWidth,
     minMaxDiapazon,
@@ -14,7 +15,8 @@ export default class Trigger {
   }) {
     this.dataName = dataName
     this.dataValue = dataValue
-    this.name = name
+    this.cssName = cssName
+    this.opositeCssName = opositeCssName
     this.triggerElem = element
     this.sliderWidth = sliderWidth
     this.minMaxDiapazon = minMaxDiapazon
@@ -24,7 +26,7 @@ export default class Trigger {
     this.formatNumber = formatNumber
     this.sign = sign
 
-    this.triggerMinInit = parseInt(window.getComputedStyle(this.triggerElem)[name])
+    this.triggerMinInit = parseInt(window.getComputedStyle(this.triggerElem)[cssName])
     this.triggerMin = this.triggerMinInit
     this.triggerElemWidth = this.triggerElem.offsetWidth
 
@@ -40,7 +42,18 @@ export default class Trigger {
     this.anotherTriggerWidth = null
     this.anotherTriggerValue = null
 
-    this.onStart(this.triggerElemWidth, this.triggerMin)
+    // this.onStart(this.triggerElemWidth, this.triggerMin)
+    this.onStart({
+      data: {
+        cssName: this.cssName,
+        opositeCssName: this.opositeCssName,
+        value: dataValue
+      },
+      ui: {
+        width: this.triggerElemWidth,
+        value: this.triggerMin
+      }
+    })
 
     // EVENTS
     this.triggerElem.addEventListener('mousedown', ev => {
@@ -61,6 +74,19 @@ export default class Trigger {
   }
 
   // T - means tested
+  // P - means pending
+
+  get sliderWidth() {
+    return this.$sliderWidth
+  }
+
+  set sliderWidth(val) {
+    this.$sliderWidth = val
+    if (val * .7 < this.currentPixelVal) {
+      this.applyTriggerPosition(val - this.triggerElemWidth - this.anotherTriggerWidth)
+      console.warn('Trigger moved outside of slider')
+    }
+  }
 
   get active() {
     return this.$active
@@ -76,10 +102,12 @@ export default class Trigger {
   }
 
   addHighlightedClass() { // T
+    this.highlighted = true
     this.triggerElem.classList.add('trigger-highlighted')
   }
 
   removeHighlightedClass() { // T
+    this.highlighted = false
     this.triggerElem.classList.remove('trigger-highlighted')
   }
 
@@ -94,7 +122,7 @@ export default class Trigger {
 
   eventStop(ev) { // T
     this.active = false
-    const param = this.triggerElem.style[this.name]
+    const param = this.triggerElem.style[this.cssName]
     this.triggerMin = parseInt(param === '' ? 0 : param)
   }
 
@@ -109,9 +137,10 @@ export default class Trigger {
   }
 
   movedCursorValue(ev, clickCoord) { // T
-    if (this.name === 'left') {
+    // console.warn(this.evPageX(ev, this.isTouchDevice))
+    if (this.cssName === 'left') {
       return this.evPageX(ev, this.isTouchDevice) - clickCoord
-    } else if (this.name === 'right') {
+    } else if (this.cssName === 'right') {
       return clickCoord - this.evPageX(ev, this.isTouchDevice)
     }
   }
@@ -207,12 +236,14 @@ export default class Trigger {
 
   moveTrigger(ev) {
     const newVal = this.triggerMin + this.movedCursorValue(ev, this.clickCoord)
+    // console.warn(newVal)
     const maxAllow = this.triggerElemMaxAllow()
+    // console.log(maxAllow)
     const moveVal = this.getExactMovedValue(this.triggerMinInit, newVal, maxAllow)
     const fullIndicatorWidth = this.sliderWidth - this.triggerElemWidth - this.anotherTriggerWidth
     const currentStep = this.getCurrentStep(moveVal, this.step, fullIndicatorWidth)
     this.currentStep = currentStep
-    
+
     const magneticVal = this.getMagneticMovedValue(moveVal, this.step, fullIndicatorWidth)
     this.currentPixelVal = magneticVal
 
@@ -225,18 +256,29 @@ export default class Trigger {
 
     // если зничение реально изменилось
     if (this.moveValOld !== magneticVal) {
+
       this.onChange({
         ev,
-        name: this.name,
-        isTouch: this.isTouchDevice,
-        width: this.triggerElemWidth,
-        value: magneticVal
+        data: {
+          cssName: this.cssName,
+          opositeCssName: this.opositeCssName,
+          value: visualValue
+        },
+        ui: {
+          width: this.triggerElemWidth,
+          value: magneticVal
+        }
       })
+
       this.updateVisualValue(vusualValWithCutSign)
       this.moveValOld = magneticVal
     }
 
-    this.triggerElem.style[this.name] = magneticVal + 'px'
+    this.applyTriggerPosition(magneticVal)
+  }
+
+  applyTriggerPosition(val) { // T
+    this.triggerElem.style[this.cssName] = val + 'px'
   }
 
 }
