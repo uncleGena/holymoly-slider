@@ -15,21 +15,83 @@
 
 
       <div class="hm-slider casino" 
-        data-hm-slider 
-        data-hm-slider-min="700" 
-        data-hm-slider-max="4000"
-        data-hm-slider-step="7"
-      >
+      data-hm-slider 
+      data-hm-slider-min="777" 
+      data-hm-slider-max="3333" 
+      data-hm-slider-step="3">
         <div class="hm-slider__underlay">
 
           <div class="hm-slider__trigger-1" data-trigger="left"> </div>
+
           <div class="hm-slider__scroll-indicator" data-indicator> </div>
+
+          <div class="hm-slider__trigger-2" data-trigger="right" data-hm-slider-cut-sign="+"> </div>
+
+        </div>
+      </div>
+
+
+    </div>
+    <div class="slider-container">
+
+
+      <div class="hm-slider casino" 
+      data-hm-slider 
+      data-hm-slider-min="0" 
+      data-hm-slider-max="222">
+        <div class="hm-slider__underlay">
+
+          <div class="hm-slider__trigger-1" data-trigger="left"> </div>
+
+          <div class="hm-slider__scroll-indicator" data-indicator> </div>
+
           <div class="hm-slider__trigger-2" data-trigger="right"> </div>
 
         </div>
       </div>
 
 
+    </div>
+    <div class="slider-container">
+    
+    
+      <div class="hm-slider casino" 
+      data-hm-slider 
+      data-hm-slider-min="1000" 
+      data-hm-slider-max="600000"  
+      data-hm-slider-step="4">
+        <div class="hm-slider__underlay">
+    
+          <div class="hm-slider__trigger-1" data-trigger="left"> </div>
+    
+          <div class="hm-slider__scroll-indicator" data-indicator> </div>
+    
+          <div class="hm-slider__trigger-2" data-trigger="right"> </div>
+    
+        </div>
+      </div>
+    
+    
+    </div>
+    <hr style="border: 1px solid grey; width: 100%">
+    <div class="slider-container">
+    
+    
+      <div class="hm-slider slot" 
+      data-hm-slider 
+      data-hm-slider-min="0" 
+      data-hm-slider-max="100" 
+      data-hm-slider-step="4" 
+      data-hm-slider-sign="%">
+        <div class="hm-slider__underlay">
+    
+          <div class="hm-slider__trigger-1" data-trigger="left"> </div>
+          <div class="hm-slider__scroll-indicator" data-indicator> </div>
+          <div class="hm-slider__trigger-2" data-trigger="right"> </div>
+    
+        </div>
+      </div>    
+    
     </div>
   </div>
   <style>
@@ -52,10 +114,13 @@
 
     body {
       height: 100%;
+      background-color: #e4efef;
+      background-color: white;
     }
 
     .content {
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       height: 100%;
@@ -64,6 +129,7 @@
     .slider-container {
       display: flex;
       width: 200px;
+      margin: 20px;
       justify-content: center;
       align-items: center;
     }
@@ -76,16 +142,33 @@
   const change = () => console.log('changing::')
   const init = () => console.log('init::')
   const active = () => console.log('active::')
-  const disactive= () => console.log('disactive::')
+  const disactive = () => console.log('disactive::')
 
-  const slider = hmSlider({
-    selector: '[data-hm-slider]',
-    onInit: init,
-    onActive: active,
-    onChange: change,
-    onDisactive: disactive,
-    step: 6
+
+  const elems = document.querySelectorAll('[data-hm-slider]')
+  elems.forEach(elem => {
+
+    const slider = hmSlider({
+      selector: elem,
+      onInit: init,
+      onActive: active,
+      onChange: change,
+      onDisactive: disactive,
+      formatNumber: true,
+      step: 6
+    })
+
   })
+
+  // const slider = hmSlider({
+  //   selector: '[data-hm-slider]',
+  //   onInit: init,
+  //   onActive: active,
+  //   onChange: change,
+  //   onDisactive: disactive,
+  //   formatNumber: true,
+  //   step: 6
+  // })
 
   // slider.onChange(change)
 </script>

@@ -1,0 +1,52 @@
+
+.casino {
+  &.hm-slider {
+
+  }
+
+  .hm-slider {
+    $colorBgPageDefault: #e4efef;
+    $colorTextFade: #699292;
+    $triggBord: 2px;
+    $lineHeight: 16px;
+    $triggWidth: 50px;
+    $triggHeight: 36px;
+    $triggRealWidth: ($triggWidth + ($triggBord * 2));
+    $triggRealHeight: ($triggHeight + ($triggBord * 2));
+    &__underlay {
+      margin: 10px;
+      background-color: #c4d7d7;
+      border-radius: 30px;
+      height: $lineHeight;
+    }
+    &__trigger-1,
+    &__trigger-2 {
+      box-sizing: border-box;
+      height: $triggHeight;
+      width: $triggWidth;
+      border: $triggBord solid $colorBgPageDefault;
+      background-color: $colorTextFade;
+      border-radius: 8px;
+      font-size: 15px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      font-weight: bold;
+      color: white;
+      outline: none;
+      font-family: "Roboto", Arial, sans-serif;
+      &.trigger-highlighted {
+        background-color: #E22F59;
+        background-image: url(http://holymolycasino.com/img/bg-patterns/bg_hmc-red_textured.jpg);
+        background-size: 400px 400px;
+      }
+    }
+    &__scroll-indicator {
+      left: $triggWidth;
+      right: $triggWidth;
+      height: $lineHeight;
+      background-color: $colorTextFade;
+    }
+  }
+}

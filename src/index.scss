@@ -1,27 +1,24 @@
-.hm-slider {
-  $parent: &;
+@import "./themes/casino";
+@import "./themes/slot";
 
-  // test
-  & * {
-    opacity: .6;
-  }
-
+.hm-slider {  
   box-sizing: border-box;
   display: flex;
-  width: 100%; 
-  position: relative;
-
-  // COMMON STYLES
+  width: 100%;
+  position: relative; // COMMON STYLES
   &__underlay {
     width: 100%;
   }
-  &__trigger-1, 
+  &__trigger-1,
   &__trigger-2 {
     display: flex;
     justify-content: center;
     align-items: center;
     position: absolute;
     z-index: 2;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
     user-select: none;
     top: 0; // temporary;
   }
@@ -35,44 +32,4 @@
   &__trigger-2 {
     right: 0;
   } 
-  
-  
-  // THEMES
-  // casinos theme
-  &.casino {
-    $triggBord: 2px;
-    $lineHeight: 16px;
-    $triggWidth: 50px;
-    $triggHeight: 36px;
-
-    $triggRealWidth: ($triggWidth + ($triggBord * 2));
-
-    $triggRealHeight: ($triggHeight + ($triggBord * 2));
-
-    #{$parent}__underlay {
-      margin: 10px;
-      background-color: #c4d7d7;
-      border-radius: 30px;
-      height: $lineHeight;
-    }
-    #{$parent}__trigger-1, 
-    #{$parent}__trigger-2 {
-      box-sizing: border-box;
-      height: $triggHeight;
-      width: $triggWidth;
-      border: $triggBord solid orangered;
-      background-color: rgb(105, 146, 146);
-    }
-    #{$parent}__scroll-indicator {
-      // top: 0px;
-      left: $triggWidth;
-      right: $triggWidth;
-      height: $lineHeight;
-      // background-color: #699292;
-      background-color: aqua;
-    }
-  } // bonuses theme
-  &.bonuses {
-    #{$parent}__underlay {}
-  }
 }
