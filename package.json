@@ -1,6 +1,6 @@
 {
   "name": "holymoly-slider",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "holymoly drag slider",
   "keywords": ["slider", "drag slider"],
   "main": "./dist/hm-slider.js",

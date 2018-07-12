@@ -4,7 +4,7 @@ import IndicatorSide from './IndicatorSide';
 export default class Slider {
   constructor({
     selector,
-    formatNumber = false,
+    formatNumber = true,
     onInit = () => {},
     onChangeStart = () => {},
     onChange = () => {},

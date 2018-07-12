@@ -34,7 +34,9 @@ export default class Trigger {
 
     this.triggerMinInit = parseInt(window.getComputedStyle(this.triggerElem)[cssName])
     this.triggerMin = this.triggerMinInit
-    this.triggerElemWidth = this.triggerElem.offsetWidth
+    // this.triggerElemWidth = this.triggerElem.offsetWidth
+    this.triggerElemWidth = parseInt(window.getComputedStyle(this.triggerElem)['width'])
+    // console.log(window.getComputedStyle(this.triggerElem))
 
     this.highlighted = this.triggerElem.classList.contains('trigger-active') // through get/set
     this.isTouchDevice = false
@@ -78,7 +80,7 @@ export default class Trigger {
 
   set sliderWidth(val) {
     this.$sliderWidth = val
-    if (val * .7 < this.currentPixelVal) {
+    if (val < this.currentPixelVal) {
       this.applyTriggerPosition(val - this.triggerElemWidth - this.anotherTriggerWidth)
       console.warn('Trigger moved outside of slider')
     }

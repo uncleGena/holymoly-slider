@@ -84,9 +84,9 @@
       data-hm-slider-sign="%">
         <div class="hm-slider__underlay">
     
-          <div class="hm-slider__trigger-1" data-trigger="left"> </div>
+          <div class="hm-slider__trigger-1" data-trigger="left" data-custom-name="asdf"> </div>
           <div class="hm-slider__scroll-indicator" data-indicator> </div>
-          <div class="hm-slider__trigger-2" data-trigger="right"> </div>
+          <div class="hm-slider__trigger-2" data-trigger="right" data-custom-name="wert"> </div>
     
         </div>
       </div>    
@@ -148,11 +148,11 @@
   elems.forEach(elem => {
     
     const init = () => {
-      setTimeout(() => {
-        slider.command('reset').then(data => {
+      // setTimeout(() => {
+        // slider.command('reset').then(data => {
           // console.log('DATA::', data)
-        })
-      }, 3000)
+        // })
+      // }, 3000)
     }
 
     const slider = hmSlider({
@@ -162,7 +162,7 @@
 
       onInit: init,
       onChangeStart: changeStart,
-      // onChange: change,
+      onChange: change,
       onChangeEnd: changeEnd
     })
 
