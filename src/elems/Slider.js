@@ -5,10 +5,10 @@ export default class Slider {
   constructor({
     selector,
     formatNumber = false,
-    onInit,
-    onActive,
-    onChange,
-    onDisactive
+    onInit = () => {},
+    onActive = () => {},
+    onChange = () => {},
+    onDisactive = () => {}
   } = {}) {
     this.selector = selector
     this.formatNumber = formatNumber
@@ -64,6 +64,7 @@ export default class Slider {
       }, 50)
     }, false);
 
+    this.onInit()
   }
 
   triggerPropsConfig(params) {
@@ -92,13 +93,28 @@ export default class Slider {
       },
       onChange: (props) => {
         this.changeOppositeTriggerWidth(props.data, props.ui)
-        this.changeIndicatorSideValue(props.data, props.ui)
+        // this.changeIndicatorSideValue(props.data, props.ui)
         this.onChange && this.onChange({
           slider: this,
-          triggers: this.triggers,
-          indicatorSides: this.indicatorSides,
-          active: props
+          triggers: [
+            // TODO: переписать
+            {
+              cssName: null,
+              dataName: null,
+              initVal: null,
+              currVal: null
+            }, {
+              cssName: null,
+              dataName: null,
+              initVal: null,
+              currVal: null
+            }
+          ],
+          activeTriggerInd: null
         })
+      },
+      updateIndicator: (props) => {
+        this.changeIndicatorSideValue(props.data, props.ui)
       }
     }
   }
@@ -129,6 +145,17 @@ export default class Slider {
   updateTriggersSliderWidth(val) { // P
     this.triggers.forEach(o => {
       o.sliderWidth = val
+    })
+  }
+
+  action(...param) {
+    if (param[0] === 'reset') this.resetSlider(param[1], param[2])
+    if (param[0] === 'set')   this.actionSet(param[1], param[2])
+  }
+
+  resetSlider() {
+    this.triggers.map(trigg => {
+      trigg.resetToInitial()
     })
   }
 }

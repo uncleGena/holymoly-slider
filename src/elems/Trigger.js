@@ -9,6 +9,7 @@ export default class Trigger {
     minMaxDiapazon,
     onStart = () => {},
     onChange = () => {},
+    updateIndicator = () => {},
     step = null,
     formatNumber = false,
     sign = false
@@ -23,6 +24,7 @@ export default class Trigger {
     this.onStart = onStart
     this.onChange = onChange
     this.step = step ? step : minMaxDiapazon
+    this.updateIndicator = updateIndicator
     this.formatNumber = formatNumber
     this.sign = sign
 
@@ -42,18 +44,7 @@ export default class Trigger {
     this.anotherTriggerWidth = null
     this.anotherTriggerValue = null
 
-    // this.onStart(this.triggerElemWidth, this.triggerMin)
-    this.onStart({
-      data: {
-        cssName: this.cssName,
-        opositeCssName: this.opositeCssName,
-        value: dataValue
-      },
-      ui: {
-        width: this.triggerElemWidth,
-        value: this.triggerMin
-      }
-    })
+    this.onStart(this.dataToReturn())
 
     // EVENTS
     this.triggerElem.addEventListener('mousedown', ev => {
@@ -69,8 +60,8 @@ export default class Trigger {
     document.addEventListener('mousemove', this.eventMove.bind(this))
     document.addEventListener('touchmove', this.eventMove.bind(this))
 
-    const val = this.formatNumber ? this.valueFormated(this.dataValue) : this.dataValue.toFixed(0)
-    this.updateVisualValue(val + this.cutSignAddition(this.sign, this.cutSign, val, val))
+    const vusualValWithCutSign = this.getVisualValueWithCutSign()
+    this.updateVisualValue(vusualValWithCutSign)
   }
 
   // T - means tested
@@ -91,10 +82,40 @@ export default class Trigger {
   get active() {
     return this.$active
   }
-
   set active(val) {
     this.$active = val
     this.toggleHighlightClass(this.active, this.isMoved())
+  }
+
+  get currentPixelVal() {
+    return this.$currentPixelVal
+  }
+  set currentPixelVal(val) {
+    this.$currentPixelVal = val
+    this.applyTriggerPosition(val)
+  }
+
+  updateCurrentState(newVal) {
+    const maxAllow = this.triggerElemMaxAllow()
+    const moveVal = this.getExactMovedValue(this.triggerMinInit, newVal, maxAllow)
+    const fullIndicatorWidth = this.sliderWidth - this.triggerElemWidth - this.anotherTriggerWidth
+
+    this.currentStep = this.getCurrentStep(moveVal, this.step, fullIndicatorWidth)
+    this.currentPixelVal = this.getMagneticMovedValue(moveVal, this.step, fullIndicatorWidth)
+    this.currentVisualVal = this.getVisualValue(this.minMaxDiapazon, this.step, this.currentStep)
+  }
+
+  resetToInitial() { // P
+    this.updateCurrentState(0)
+
+    // update vusual value
+    const vusualValWithCutSign = this.getVisualValueWithCutSign()
+    this.updateVisualValue(vusualValWithCutSign)
+
+    this.updateIndicator(this.dataToReturn())
+
+    this.eventStop()
+
   }
 
   isMoved() { // T
@@ -120,7 +141,7 @@ export default class Trigger {
     this.active = true
   }
 
-  eventStop(ev) { // T
+  eventStop() { // T
     this.active = false
     const param = this.triggerElem.style[this.cssName]
     this.triggerMin = parseInt(param === '' ? 0 : param)
@@ -234,47 +255,45 @@ export default class Trigger {
     } else return curVal
   }
 
+  getVisualValueWithCutSign() {
+    const formatedValue = this.formatNumber ? this.valueFormated(this.currentVisualVal) : this.currentVisualVal.toFixed(0)
+    const cuttedSign = this.cutSignAddition(this.sign, this.cutSign, this.currentVisualVal, this.dataValue)
+    const visualValWithCutSign = formatedValue + cuttedSign
+    return visualValWithCutSign
+  }
+
+  dataToReturn() {
+    return {
+      data: {
+        cssName: this.cssName,
+        opositeCssName: this.opositeCssName,
+        value: this.currentVisualVal
+      },
+      ui: {
+        width: this.triggerElemWidth,
+        value: this.currentPixelVal
+      }
+    }
+  }
+
   moveTrigger(ev) {
     const newVal = this.triggerMin + this.movedCursorValue(ev, this.clickCoord)
-    // console.warn(newVal)
-    const maxAllow = this.triggerElemMaxAllow()
-    // console.log(maxAllow)
-    const moveVal = this.getExactMovedValue(this.triggerMinInit, newVal, maxAllow)
-    const fullIndicatorWidth = this.sliderWidth - this.triggerElemWidth - this.anotherTriggerWidth
-    const currentStep = this.getCurrentStep(moveVal, this.step, fullIndicatorWidth)
-    this.currentStep = currentStep
-
-    const magneticVal = this.getMagneticMovedValue(moveVal, this.step, fullIndicatorWidth)
-    this.currentPixelVal = magneticVal
-
-    const visualValue = this.getVisualValue(this.minMaxDiapazon, this.step, currentStep)
-    this.currentVisualVal = visualValue
-
-    const formatedValue = this.formatNumber ? this.valueFormated(visualValue) : visualValue.toFixed(0)
-    const cuttedSign = this.cutSignAddition(this.sign, this.cutSign, visualValue, this.dataValue)
-    const vusualValWithCutSign = formatedValue + cuttedSign
+    this.updateCurrentState(newVal)
 
     // если зничение реально изменилось
-    if (this.moveValOld !== magneticVal) {
+    if (this.moveValOld !== this.currentPixelVal) {
 
-      this.onChange({
-        ev,
-        data: {
-          cssName: this.cssName,
-          opositeCssName: this.opositeCssName,
-          value: visualValue
-        },
-        ui: {
-          width: this.triggerElemWidth,
-          value: magneticVal
-        }
-      })
+      this.updateIndicator(this.dataToReturn())
 
-      this.updateVisualValue(vusualValWithCutSign)
-      this.moveValOld = magneticVal
+      const data = this.dataToReturn()
+      data.ev = ev
+      this.onChange(data)
+
+      this.updateVisualValue(this.getVisualValueWithCutSign())
+      this.moveValOld = this.currentPixelVal
+      this.applyTriggerPosition(this.currentPixelVal)
     }
 
-    this.applyTriggerPosition(magneticVal)
   }
 
   applyTriggerPosition(val) { // T

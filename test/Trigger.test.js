@@ -50,7 +50,7 @@ beforeEach(function () {
 })
 
 afterEach(function () {
-  document.body.innerHTML = ''
+  document.body.innerHTML = null
   trigger = null
 })
 
@@ -368,5 +368,13 @@ describe('Trigger class element', function () {
       assert(pos_before !== pos_affter, 'position did not change')
       assert(pos_affter === val + 'px', 'changed to wrong position')
     })
+  })
+
+  describe('resetToInitial', function () {
+    it('should reset pixel width and update visual number')
+
+    it('should update visual value')
+
+    it('should update indicator side')
   })
 })

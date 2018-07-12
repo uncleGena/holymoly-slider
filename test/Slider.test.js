@@ -43,6 +43,7 @@ beforeEach(function () {
 })
 
 afterEach(function () {
+  document.body.innerHTML = null
   slider = null
 })
 
