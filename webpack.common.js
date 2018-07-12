@@ -1,39 +1,16 @@
 const path = require('path')
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
-NODE_ENV = 'development'
-
 module.exports = {
-  mode: "development", // enabled useful tools for development
   entry: './src/index.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
     publicPath: '/dist/',
     filename: 'hm-slider.js',
     libraryTarget: 'umd',
-    // umdNamedDefine: true,
     library: 'hmSlider',
     libraryExport: 'hmSlider'
-    // globalObject: 'this'
   },
-  devServer: {
-    contentBase: path.join(__dirname, '.'),
-    compress: true,
-    port: 4444,
-    stats: {
-      chunkOrigins: false,
-      cached: false,
-      cachedAssets: false,
-      children: false,
-      chunks: false,
-      chunkModules: false,
-      env: true,
-      hash: false,
-      modules: false,
-      source: false
-    }
-  },
-  watch: NODE_ENV == 'development',
   watchOptions: {
     aggregateTimeout: 100
   },
