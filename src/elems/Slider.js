@@ -6,16 +6,16 @@ export default class Slider {
     selector,
     formatNumber = false,
     onInit = () => {},
-    onActive = () => {},
+    onChangeStart = () => {},
     onChange = () => {},
-    onDisactive = () => {}
+    onChangeEnd = () => {}
   } = {}) {
     this.selector = selector
     this.formatNumber = formatNumber
-    this.onChange = onChange
     this.onInit = onInit
-    this.onActive = onActive
-    this.onDisactive = onDisactive
+    this.onChangeStart = onChangeStart
+    this.onChange = onChange
+    this.onChangeEnd = onChangeEnd
 
     this.triggersConfig = [{
         cssName: 'left',
@@ -91,32 +91,48 @@ export default class Slider {
           this.changeOppositeTriggerWidth(props.data, props.ui)
         })
       },
-      onChange: (props) => {
+      onChangeStart: props => {
+        this.onChangeStart && this.onChangeStart(this.returnDataSetup(props))
+      },
+      onChange: props => {
         this.changeOppositeTriggerWidth(props.data, props.ui)
-        // this.changeIndicatorSideValue(props.data, props.ui)
-        this.onChange && this.onChange({
-          slider: this,
-          triggers: [
-            // TODO: переписать
-            {
-              cssName: null,
-              dataName: null,
-              initVal: null,
-              currVal: null
-            }, {
-              cssName: null,
-              dataName: null,
-              initVal: null,
-              currVal: null
-            }
-          ],
-          activeTriggerInd: null
-        })
+        this.onChange && this.onChange(this.returnDataSetup(props))
+      },
+      onChangeEnd: props => {
+        this.onChangeEnd && this.onChangeEnd(this.returnDataSetup(props))
       },
       updateIndicator: (props) => {
         this.changeIndicatorSideValue(props.data, props.ui)
       }
     }
+  }
+
+  getActiveTriggerInd(name) {
+    return this.triggers.reduce((acc, el, ind) => {
+      if (el.cssName === name) acc = ind;
+      return acc
+    }, -1)
+  }
+
+  returnDataSetup(params = false) {
+    const data = {
+      slider: {
+        dataSet: this.dataSet,
+        elem: this.sliderElem
+      },
+      triggers: this.triggers.map(tr => {
+        return {
+          elem: tr.triggerElem,
+          cssName: tr.cssName,
+          dataName: tr.dataName,
+          initVal: tr.dataValue,
+          currVal: tr.currentVisualVal,
+          highlighted: tr.highlighted
+        }
+      })
+    }
+    if (params) data.activeTriggerInd = this.getActiveTriggerInd(params.data.cssName)
+    return data
   }
 
   changeOppositeTriggerWidth(data, ui) { // T
@@ -148,14 +164,20 @@ export default class Slider {
     })
   }
 
-  action(...param) {
-    if (param[0] === 'reset') this.resetSlider(param[1], param[2])
-    if (param[0] === 'set')   this.actionSet(param[1], param[2])
+  command(...param) {
+    if (param[0] === 'reset') return this.resetSlider()
   }
 
   resetSlider() {
-    this.triggers.map(trigg => {
-      trigg.resetToInitial()
+    // create array of promisified data
+    const prmss = this.triggers.map(trigg => trigg.resetToInitial())
+    // need to return promise
+    return new Promise(resolve => {
+      // wait both triggers updates
+      Promise.all(prmss).then(resp => {
+        // return data without active trigger
+        resolve(this.returnDataSetup())
+      })
     })
   }
 }

@@ -8,7 +8,9 @@ export default class Trigger {
     sliderWidth,
     minMaxDiapazon,
     onStart = () => {},
+    onChangeStart = () => {},
     onChange = () => {},
+    onChangeEnd = () => {},
     updateIndicator = () => {},
     step = null,
     formatNumber = false,
@@ -22,7 +24,9 @@ export default class Trigger {
     this.sliderWidth = sliderWidth
     this.minMaxDiapazon = minMaxDiapazon
     this.onStart = onStart
+    this.onChangeStart = onChangeStart
     this.onChange = onChange
+    this.onChangeEnd = onChangeEnd
     this.step = step ? step : minMaxDiapazon
     this.updateIndicator = updateIndicator
     this.formatNumber = formatNumber
@@ -37,6 +41,7 @@ export default class Trigger {
     this.clickCoord = null
     this.moveValOld = null
     this.cutSign = this.triggerElem.dataset['hmSliderCutSign'] || false
+    this.inMoveState = false
 
     this.currentPixelVal = this.triggerMinInit
     this.currentVisualVal = dataValue
@@ -109,12 +114,18 @@ export default class Trigger {
     this.updateCurrentState(0)
 
     // update vusual value
-    const vusualValWithCutSign = this.getVisualValueWithCutSign()
-    this.updateVisualValue(vusualValWithCutSign)
+    this.updateVisualValue(this.getVisualValueWithCutSign())
 
     this.updateIndicator(this.dataToReturn())
 
     this.eventStop()
+
+    // TODO: create animation for triggers
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve(this.dataToReturn())
+      }, 500)
+    })
 
   }
 
@@ -145,6 +156,19 @@ export default class Trigger {
     this.active = false
     const param = this.triggerElem.style[this.cssName]
     this.triggerMin = parseInt(param === '' ? 0 : param)
+    this.inMoveState = false
+  }
+
+  get inMoveState() {
+    return this.$inMoveState
+  }
+  set inMoveState(val) {
+    if (val && this.$inMoveState !== val) {
+      this.onChangeStart(this.dataToReturn())
+    } else if (!val && this.$inMoveState !== val && this.$inMoveState !== undefined) {
+      this.onChangeEnd(this.dataToReturn())
+    }
+    this.$inMoveState = val
   }
 
   eventMove(ev) { // T
@@ -282,6 +306,7 @@ export default class Trigger {
 
     // если зничение реально изменилось
     if (this.moveValOld !== this.currentPixelVal) {
+      this.inMoveState = true
 
       this.updateIndicator(this.dataToReturn())
 

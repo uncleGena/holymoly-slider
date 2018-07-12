@@ -139,9 +139,9 @@
 
 
 <script>
-  const change = (props) => console.log(props)
-  const active = () => console.log('active::')
-  const disactive = () => console.log('disactive::')
+  const change = data => console.log(data)
+  const changeStart = data => console.log('changeStart::', data)
+  const changeEnd = data => console.log('changeEnd::', data)
   
   
   const elems = document.querySelectorAll('[data-hm-slider]')
@@ -149,19 +149,21 @@
     
     const init = () => {
       setTimeout(() => {
-        console.log('init::', slider)
-        slider.action('reset')
+        slider.command('reset').then(data => {
+          // console.log('DATA::', data)
+        })
       }, 3000)
     }
 
     const slider = hmSlider({
       selector: elem,
-      onInit: init,
-      onActive: active,
-      // onChange: change,
-      onDisactive: disactive,
       formatNumber: true,
-      step: 6
+      step: 6,
+
+      onInit: init,
+      onChangeStart: changeStart,
+      // onChange: change,
+      onChangeEnd: changeEnd
     })
 
   })
