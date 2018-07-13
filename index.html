@@ -15,7 +15,7 @@
 
 
       <div class="hm-slider casino" 
-      holymoly-slider
+      data-hm-slider
       data-hm-slider-min="777" 
       data-hm-slider-max="3333" 
       data-hm-slider-step="3">
@@ -36,7 +36,7 @@
 
 
       <div class="hm-slider casino" 
-      holymoly-slider
+      data-hm-slider
       data-hm-slider-min="0" 
       data-hm-slider-max="222">
         <div class="hm-slider__underlay">
@@ -56,7 +56,7 @@
     
     
       <div class="hm-slider casino" 
-      holymoly-slider 
+      data-hm-slider 
       data-hm-slider-min="1000" 
       data-hm-slider-max="600000"  
       data-hm-slider-step="4">
@@ -78,7 +78,7 @@
     
     
       <div class="hm-slider slot" 
-      holymoly-slider
+      data-hm-slider
       data-hm-slider-min="0" 
       data-hm-slider-max="100" 
       data-hm-slider-sign="%">
@@ -160,7 +160,7 @@
   const changeEnd = data => console.log('changeEnd::', data)
   
   
-  const elems = document.querySelectorAll('[holymoly-slider ]')
+  const elems = document.querySelectorAll('[data-hm-slider ]')
   elems.forEach(elem => {
     
     const init = () => {

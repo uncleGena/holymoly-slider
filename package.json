@@ -1,14 +1,11 @@
 {
   "name": "holymoly-slider",
-  "version": "0.0.4",
+  "version": "0.0.6",
   "description": "holymoly drag slider",
   "keywords": ["slider", "drag slider"],
   "main": "./dist/hm-slider.js",
   "author": "Andrii Kudriavtsev",
   "license": "ISC",
-  "files": [
-    "./dist"
-  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/uncleGena/holymoly-slider.git"

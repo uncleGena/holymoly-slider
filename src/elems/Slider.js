@@ -139,8 +139,8 @@ export default class Slider {
           elem: tr.triggerElem,
           cssName: tr.cssName,
           dataName: tr.dataName,
-          initVal: tr.dataValue,
-          currVal: tr.currentVisualVal,
+          valInit: tr.dataValue,
+          valCurr: tr.currentVisualVal,
           highlighted: tr.highlighted,
           dataset: Object.assign({}, tr.triggerDataset)
         }
