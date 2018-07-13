@@ -15,7 +15,7 @@
 
 
       <div class="hm-slider casino" 
-      data-hm-slider 
+      holymoly-slider
       data-hm-slider-min="777" 
       data-hm-slider-max="3333" 
       data-hm-slider-step="3">
@@ -36,16 +36,16 @@
 
 
       <div class="hm-slider casino" 
-      data-hm-slider 
+      holymoly-slider
       data-hm-slider-min="0" 
       data-hm-slider-max="222">
         <div class="hm-slider__underlay">
 
-          <div class="hm-slider__trigger-1" data-trigger="left"> </div>
+          <div class="hm-slider__trigger-1" data-trigger="left" data-custom-name="global_rating_min"> </div>
 
           <div class="hm-slider__scroll-indicator" data-indicator> </div>
 
-          <div class="hm-slider__trigger-2" data-trigger="right"> </div>
+          <div class="hm-slider__trigger-2" data-trigger="right" data-custom-name="global_rating_max"> </div>
 
         </div>
       </div>
@@ -56,7 +56,7 @@
     
     
       <div class="hm-slider casino" 
-      data-hm-slider 
+      holymoly-slider 
       data-hm-slider-min="1000" 
       data-hm-slider-max="600000"  
       data-hm-slider-step="4">
@@ -78,15 +78,15 @@
     
     
       <div class="hm-slider slot" 
-      data-hm-slider 
+      holymoly-slider
       data-hm-slider-min="0" 
       data-hm-slider-max="100" 
       data-hm-slider-sign="%">
         <div class="hm-slider__underlay">
     
-          <div class="hm-slider__trigger-1" data-trigger="left" data-custom-name="asdf"> </div>
+          <div class="hm-slider__trigger-1" data-trigger="left" data-custom-name="global_score_min"> </div>
           <div class="hm-slider__scroll-indicator" data-indicator> </div>
-          <div class="hm-slider__trigger-2" data-trigger="right" data-custom-name="wert"> </div>
+          <div class="hm-slider__trigger-2" data-trigger="right" data-custom-name="global_score_max"> </div>
     
         </div>
       </div>    
@@ -109,16 +109,32 @@
 
     html {
       height: 100vh;
+      animation: padd 1s;
+    }
+    @keyframes padd {
+      from { padding: 30px }
+      to { padding: 0 }
+    }
+
+    body {
+      animation: fadein .5s; 
+    } 
+    @keyframes fadein { 
+      from { width: 121%} 
+      to { width: 100%} 
     }
 
     body {
       height: 100%;
-      background-color: #e4efef;
       background-color: white;
+      display: flex;
+      justify-content: center;
     }
 
     .content {
+      border: 1px dotted rgba(0, 0, 0, .2);
       display: flex;
+      flex: 1;
       flex-direction: column;
       justify-content: center;
       align-items: center;
@@ -144,7 +160,7 @@
   const changeEnd = data => console.log('changeEnd::', data)
   
   
-  const elems = document.querySelectorAll('[data-hm-slider]')
+  const elems = document.querySelectorAll('[holymoly-slider ]')
   elems.forEach(elem => {
     
     const init = () => {

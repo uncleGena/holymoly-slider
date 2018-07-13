@@ -118,16 +118,25 @@ describe('Trigger class element', function () {
   })
 
   describe('eventMove', function () {
-    it('should move trigger if trigger is active', function () {
-      const x = 234
-      let ev = new MouseEvent('mousemove', {
-        clientX: x
-      })
-      trigger.active = true
-      const oldVal = trigger.moveValOld
-      assert(oldVal === null, 'initial value is not null')
+    const x = 234
+    let ev = new MouseEvent('mousemove', {
+      clientX: x
+    })
+
+    it('should not change state if trigger is not active', function () {
+      trigger.active = false
+      const oldState = JSON.stringify(trigger)
       trigger.eventMove(ev)
-      assert(trigger.moveValOld !== oldVal && trigger.moveValOld > 0, 'moved value did not change')
+      const newState = JSON.stringify(trigger)
+      assert.deepEqual(oldState, newState, 'changed state event if was not active')
+    })
+
+    it('should change state if trigger is active', function () {
+      trigger.active = true
+      const oldState = JSON.stringify(trigger)
+      trigger.eventMove(ev)
+      const newState = JSON.stringify(trigger)
+      assert.notDeepEqual(oldState, newState, 'state did not chage')
     })
   })
 

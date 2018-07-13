@@ -54,15 +54,24 @@ export default class Slider {
       })
     })
 
-    this.sliderWidth = this.sliderElem.offsetWidth
+    // this.sliderWidth = this.sliderElem.offsetWidth
+    this.assignSliderWidth()
 
     let timer;
     window.addEventListener("resize", () => {
       clearTimeout(timer)
       timer = setTimeout(() => {
-        this.sliderWidth = this.sliderElem.offsetWidth
+        this.assignSliderWidth()
       }, 50)
     }, false);
+
+    // window.setInterval(() => {
+    //   this.assignSliderWidth()
+    // }, 3000)
+
+    const evr = document.querySelector("*")
+    evr.addEventListener("animationend", this.assignSliderWidth.bind(this), false);
+    evr.addEventListener("transitionend", this.assignSliderWidth.bind(this), false);
 
     this.onInit()
   }
@@ -107,6 +116,11 @@ export default class Slider {
     }
   }
 
+  assignSliderWidth() {
+    console.log('assigned slider width::')
+    this.sliderWidth = parseInt(window.getComputedStyle(this.sliderElem)['width'])
+  }
+
   getActiveTriggerInd(name) {
     return this.triggers.reduce((acc, el, ind) => {
       if (el.cssName === name) acc = ind;
@@ -117,7 +131,7 @@ export default class Slider {
   returnDataSetup(params = false) {
     const data = {
       slider: {
-        dataSet: this.dataSet,
+        dataset: Object.assign({}, this.dataSet),
         elem: this.sliderElem
       },
       triggers: this.triggers.map(tr => {
@@ -127,7 +141,8 @@ export default class Slider {
           dataName: tr.dataName,
           initVal: tr.dataValue,
           currVal: tr.currentVisualVal,
-          highlighted: tr.highlighted
+          highlighted: tr.highlighted,
+          dataset: Object.assign({}, tr.triggerDataset)
         }
       })
     }

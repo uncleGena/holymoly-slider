@@ -42,6 +42,7 @@ export default class Trigger {
     this.isTouchDevice = false
     this.clickCoord = null
     this.moveValOld = null
+    this.triggerDataset = this.triggerElem.dataset
     this.cutSign = this.triggerElem.dataset['hmSliderCutSign'] || false
     this.inMoveState = false
 
@@ -79,6 +80,7 @@ export default class Trigger {
   }
 
   set sliderWidth(val) {
+    console.warn('slider width chaned:::', val)
     this.$sliderWidth = val
     if (val < this.currentPixelVal) {
       this.applyTriggerPosition(val - this.triggerElemWidth - this.anotherTriggerWidth)
@@ -237,6 +239,11 @@ export default class Trigger {
   updateVisualValue(visualValue) { // T
     this.triggerElem.innerHTML = visualValue
   }
+
+  // setWidthOfElements() {
+  //   this.sliderWidth = null
+  //   this.triggerElemWidth = null
+  // }
 
   triggerElemMaxAllow() { // T
     return this.sliderWidth - this.triggerElemWidth - this.anotherTriggerWidth - this.anotherTriggerValue
