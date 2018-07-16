@@ -5,7 +5,7 @@
   box-sizing: border-box;
   display: flex;
   width: 100%;
-  position: relative; // COMMON STYLES
+  position: relative;
   &__underlay {
     width: 100%;
   }
@@ -20,7 +20,7 @@
     -webkit-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    top: 0; // temporary;
+    top: 0;
   }
   &__trigger-1 {
     left: 0;
@@ -32,4 +32,7 @@
   &__trigger-2 {
     right: 0;
   } 
+  &--animating {
+    transition: all .3s;
+  }
 }

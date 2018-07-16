@@ -1,3 +1,5 @@
+import Common from '../common/Common'
+
 export default class Trigger {
   constructor({
     dataName = 'hmSliderMin',
@@ -27,16 +29,14 @@ export default class Trigger {
     this.onChangeStart = onChangeStart
     this.onChange = onChange
     this.onChangeEnd = onChangeEnd
-    this.step = step ? step : minMaxDiapazon
+    this.step = step ? (minMaxDiapazon / step) : minMaxDiapazon // quantity of steps
     this.updateIndicator = updateIndicator
     this.formatNumber = formatNumber
     this.sign = sign
 
     this.triggerMinInit = parseInt(window.getComputedStyle(this.triggerElem)[cssName])
     this.triggerMin = this.triggerMinInit
-    // this.triggerElemWidth = this.triggerElem.offsetWidth
     this.triggerElemWidth = parseInt(window.getComputedStyle(this.triggerElem)['width'])
-    // console.log(window.getComputedStyle(this.triggerElem))
 
     this.highlighted = this.triggerElem.classList.contains('trigger-active') // through get/set
     this.isTouchDevice = false
@@ -45,6 +45,7 @@ export default class Trigger {
     this.triggerDataset = this.triggerElem.dataset
     this.cutSign = this.triggerElem.dataset['hmSliderCutSign'] || false
     this.inMoveState = false
+    this.isAnimating = false
 
     this.currentPixelVal = this.triggerMinInit
     this.currentVisualVal = dataValue
@@ -75,12 +76,18 @@ export default class Trigger {
   // T - means tested
   // P - means pending
 
+  get isAnimating() {
+    return this.$isAnimating
+  }
+  set isAnimating(val) {
+    Common.toggleTransition(this.triggerElem, val)
+    this.$isAnimating = val
+  }
+
   get sliderWidth() {
     return this.$sliderWidth
   }
-
   set sliderWidth(val) {
-    console.warn('slider width chaned:::', val)
     this.$sliderWidth = val
     if (val < this.currentPixelVal) {
       this.applyTriggerPosition(val - this.triggerElemWidth - this.anotherTriggerWidth)
@@ -104,20 +111,31 @@ export default class Trigger {
     this.applyTriggerPosition(val)
   }
 
-  updateCurrentState(newVal) {
+  get inMoveState() {
+    return this.$inMoveState
+  }
+  set inMoveState(val) {
+    if (val && this.$inMoveState !== val) {
+      this.onChangeStart(this.dataToReturn())
+    } else if (!val && this.$inMoveState !== val && this.$inMoveState !== undefined) {
+      this.onChangeEnd(this.dataToReturn())
+    }
+    this.$inMoveState = val
+  }
+
+  updateCurrentState(newVal) { // T
     const maxAllow = this.triggerElemMaxAllow()
     const moveVal = this.getExactMovedValue(this.triggerMinInit, newVal, maxAllow)
     const fullIndicatorWidth = this.sliderWidth - this.triggerElemWidth - this.anotherTriggerWidth
+    const currentStep = this.getCurrentStep(moveVal, this.step, fullIndicatorWidth)
 
-    this.currentStep = this.getCurrentStep(moveVal, this.step, fullIndicatorWidth)
     this.currentPixelVal = this.getMagneticMovedValue(moveVal, this.step, fullIndicatorWidth)
-    this.currentVisualVal = this.getVisualValue(this.minMaxDiapazon, this.step, this.currentStep)
+    this.currentVisualVal = this.getVisualValue(this.minMaxDiapazon, this.step, currentStep)
   }
 
   resetToInitial() { // P
     this.updateCurrentState(0)
 
-    // update vusual value
     this.updateVisualValue(this.getVisualValueWithCutSign())
 
     this.updateIndicator(this.dataToReturn())
@@ -126,9 +144,9 @@ export default class Trigger {
 
     // TODO: create animation for triggers
     return new Promise(resolve => {
-      setTimeout(() => {
+      // setTimeout(() => {
         resolve(this.dataToReturn())
-      }, 500)
+      // }, 500)
     })
 
   }
@@ -139,12 +157,12 @@ export default class Trigger {
 
   addHighlightedClass() { // T
     this.highlighted = true
-    this.triggerElem.classList.add('trigger-highlighted')
+    this.triggerElem.classList.add('hm-slider--trigger-highlighted')
   }
 
   removeHighlightedClass() { // T
     this.highlighted = false
-    this.triggerElem.classList.remove('trigger-highlighted')
+    this.triggerElem.classList.remove('hm-slider--trigger-highlighted')
   }
 
   toggleHighlightClass(active, isMoved) { // T
@@ -163,18 +181,6 @@ export default class Trigger {
     this.inMoveState = false
   }
 
-  get inMoveState() {
-    return this.$inMoveState
-  }
-  set inMoveState(val) {
-    if (val && this.$inMoveState !== val) {
-      this.onChangeStart(this.dataToReturn())
-    } else if (!val && this.$inMoveState !== val && this.$inMoveState !== undefined) {
-      this.onChangeEnd(this.dataToReturn())
-    }
-    this.$inMoveState = val
-  }
-
   eventMove(ev) { // T
     if (this.active) {
       this.moveTrigger(ev)
@@ -186,7 +192,6 @@ export default class Trigger {
   }
 
   movedCursorValue(ev, clickCoord) { // T
-    // console.warn(this.evPageX(ev, this.isTouchDevice))
     if (this.cssName === 'left') {
       return this.evPageX(ev, this.isTouchDevice) - clickCoord
     } else if (this.cssName === 'right') {
@@ -240,11 +245,6 @@ export default class Trigger {
     this.triggerElem.innerHTML = visualValue
   }
 
-  // setWidthOfElements() {
-  //   this.sliderWidth = null
-  //   this.triggerElemWidth = null
-  // }
-
   triggerElemMaxAllow() { // T
     return this.sliderWidth - this.triggerElemWidth - this.anotherTriggerWidth - this.anotherTriggerValue
   }
@@ -288,14 +288,28 @@ export default class Trigger {
     } else return curVal
   }
 
-  getVisualValueWithCutSign() {
-    const formatedValue = this.formatNumber ? this.valueFormated(this.currentVisualVal) : this.currentVisualVal.toFixed(0)
+  formatValueWithTen() { // P
+    if (this.formatNumber && this.minMaxDiapazon <= 10) {
+      return parseFloat(this.currentVisualVal.toFixed(2))
+    } 
+    
+    if (this.formatNumber) {
+      return this.valueFormated(this.currentVisualVal)
+    } 
+    
+    else {
+      return parseFloat(this.currentVisualVal.toFixed(2))
+    }
+  }
+
+  getVisualValueWithCutSign() { // T
+    const formatedValue = this.formatValueWithTen()
     const cuttedSign = this.cutSignAddition(this.sign, this.cutSign, this.currentVisualVal, this.dataValue)
     const visualValWithCutSign = formatedValue + cuttedSign
     return visualValWithCutSign
   }
 
-  dataToReturn() {
+  dataToReturn() { // T
     return {
       data: {
         cssName: this.cssName,

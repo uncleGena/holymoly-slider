@@ -16,9 +16,9 @@
 
       <div class="hm-slider casino" 
       data-hm-slider
-      data-hm-slider-min="777" 
-      data-hm-slider-max="3333" 
-      data-hm-slider-step="3">
+      data-hm-slider-min="500" 
+      data-hm-slider-max="3000" 
+      data-hm-slider-step="250">
         <div class="hm-slider__underlay">
 
           <div class="hm-slider__trigger-1" data-trigger="left"> </div>
@@ -38,7 +38,30 @@
       <div class="hm-slider casino" 
       data-hm-slider
       data-hm-slider-min="0" 
-      data-hm-slider-max="222">
+      data-hm-slider-max="300000" 
+      >
+        <div class="hm-slider__underlay">
+
+          <div class="hm-slider__trigger-1" data-trigger="left"> </div>
+
+          <div class="hm-slider__scroll-indicator" data-indicator> </div>
+
+          <div class="hm-slider__trigger-2" data-trigger="right" data-hm-slider-cut-sign="+"> </div>
+
+        </div>
+      </div>
+
+
+    </div>
+    
+    <div class="slider-container">
+
+
+      <div class="hm-slider casino" 
+        data-hm-slider
+        data-hm-slider-min="1" 
+        data-hm-slider-max="10"
+        data-hm-slider-step="0.1">
         <div class="hm-slider__underlay">
 
           <div class="hm-slider__trigger-1" data-trigger="left" data-custom-name="global_rating_min"> </div>
@@ -54,12 +77,75 @@
     </div>
     <div class="slider-container">
     
-    
-      <div class="hm-slider casino" 
+      <div class="hm-slider casino"
       data-hm-slider 
-      data-hm-slider-min="1000" 
-      data-hm-slider-max="600000"  
-      data-hm-slider-step="4">
+      data-hm-slider-min="1" 
+      data-hm-slider-max="10"  
+      data-hm-slider-step="1"
+      >
+        <div class="hm-slider__underlay">
+    
+          <div class="hm-slider__trigger-1" data-trigger="left"> </div>
+    
+          <div class="hm-slider__scroll-indicator" data-indicator> </div>
+    
+          <div class="hm-slider__trigger-2" data-trigger="right"> </div>
+    
+        </div>
+      </div>
+    
+    
+    </div>
+    <div class="slider-container">
+    
+      <div class="hm-slider casino"
+      data-hm-slider 
+      data-hm-slider-min="4" 
+      data-hm-slider-max="10"  
+      data-hm-slider-step="1.5"
+      >
+        <div class="hm-slider__underlay">
+    
+          <div class="hm-slider__trigger-1" data-trigger="left"> </div>
+    
+          <div class="hm-slider__scroll-indicator" data-indicator> </div>
+    
+          <div class="hm-slider__trigger-2" data-trigger="right"> </div>
+    
+        </div>
+      </div>
+    
+    
+    </div>
+    <div class="slider-container">
+    need to fix
+      <div class="hm-slider casino"
+      data-hm-slider 
+      data-hm-slider-min="2" 
+      data-hm-slider-max="15"  
+      data-hm-slider-step="0.5"
+      >
+        <div class="hm-slider__underlay">
+    
+          <div class="hm-slider__trigger-1" data-trigger="left"> </div>
+    
+          <div class="hm-slider__scroll-indicator" data-indicator> </div>
+    
+          <div class="hm-slider__trigger-2" data-trigger="right"> </div>
+    
+        </div>
+      </div>
+    
+    
+    </div>
+    <div class="slider-container">
+    
+      <div class="hm-slider casino"
+      data-hm-slider 
+      data-hm-slider-min="0" 
+      data-hm-slider-max="1"  
+      data-hm-slider-step="0.1"
+      >
         <div class="hm-slider__underlay">
     
           <div class="hm-slider__trigger-1" data-trigger="left"> </div>
@@ -163,19 +249,19 @@
   const elems = document.querySelectorAll('[data-hm-slider ]')
   elems.forEach(elem => {
     
-    const init = () => {
+    const init = (data) => {
+      console.log(data)
       // setTimeout(() => {
-        // slider.command('reset').then(data => {
-          // console.log('DATA::', data)
-        // })
-      // }, 3000)
+      //   slider.command('reset').then(data => {
+      //     console.log('reset::', data)
+      //   })
+      // }, 2000)
     }
 
     const slider = hmSlider({
       selector: elem,
       formatNumber: true,
       step: 6,
-
       onInit: init,
       onChangeStart: changeStart,
       onChange: change,

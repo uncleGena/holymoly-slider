@@ -36,17 +36,17 @@
       color: white;
       outline: none;
       font-family: "Roboto", Arial, sans-serif;
-      &.trigger-highlighted {
-        background-color: #E22F59;
-        background-image: url(http://holymolycasino.com/img/bg-patterns/bg_hmc-red_textured.jpg);
-        background-size: 400px 400px;
-      }
     }
     &__scroll-indicator {
       left: $triggWidth;
       right: $triggWidth;
       height: $lineHeight;
       background-color: $colorTextFade;
+    }
+    &--trigger-highlighted {
+      background-color: #E22F59;
+      background-image: url(http://holymolycasino.com/img/bg-patterns/bg_hmc-red_textured.jpg);
+      background-size: 400px 400px;
     }
   }
 }

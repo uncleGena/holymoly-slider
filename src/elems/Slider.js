@@ -41,7 +41,8 @@ export default class Slider {
 
     this.dataSet = this.sliderElem.dataset
     this.minMaxDiapazon = this.dataSet[this.triggersConfig[1].dataName] - this.dataSet[this.triggersConfig[0].dataName]
-    this.step = parseInt(this.dataSet[this.sliderStepName])
+    this.step = parseFloat(this.dataSet[this.sliderStepName])
+    // console.log(this.step)
 
     this.triggers = this.triggersConfig.map(o => {
       return new Trigger(this.triggerPropsConfig(o))
@@ -73,7 +74,7 @@ export default class Slider {
     evr.addEventListener("animationend", this.assignSliderWidth.bind(this), false);
     evr.addEventListener("transitionend", this.assignSliderWidth.bind(this), false);
 
-    this.onInit()
+    this.onInit(this.returnDataSetup())
   }
 
   triggerPropsConfig(params) {
@@ -117,7 +118,6 @@ export default class Slider {
   }
 
   assignSliderWidth() {
-    console.log('assigned slider width::')
     this.sliderWidth = parseInt(window.getComputedStyle(this.sliderElem)['width'])
   }
 
@@ -179,11 +179,18 @@ export default class Slider {
     })
   }
 
+  toggleAnimatingState(bool) {
+    this.triggers.forEach(o => o.isAnimating = bool)
+    this.indicatorSides.forEach(o => o.isAnimating = bool)
+  }
+
   command(...param) {
     if (param[0] === 'reset') return this.resetSlider()
   }
 
   resetSlider() {
+    this.toggleAnimatingState(true)
+
     // create array of promisified data
     const prmss = this.triggers.map(trigg => trigg.resetToInitial())
     // need to return promise
@@ -192,6 +199,9 @@ export default class Slider {
       Promise.all(prmss).then(resp => {
         // return data without active trigger
         resolve(this.returnDataSetup())
+        setTimeout(() => {
+          this.toggleAnimatingState(false)
+        }, 500)
       })
     })
   }

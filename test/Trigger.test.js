@@ -227,9 +227,9 @@ describe('Trigger class element', function () {
 
   describe('addHighlightedClass', function () {
     it('should add class to trigger element', function () {
-      const hasClassBefore = trigger.triggerElem.classList.contains('trigger-highlighted')
+      const hasClassBefore = trigger.triggerElem.classList.contains('hm-slider--trigger-highlighted')
       trigger.addHighlightedClass()
-      const hasClassAfter = trigger.triggerElem.classList.contains('trigger-highlighted')
+      const hasClassAfter = trigger.triggerElem.classList.contains('hm-slider--trigger-highlighted')
       assert(trigger.highlighted === true, 'highlighted did not set')
       assert(hasClassBefore === false, 'class is already present')
       assert(hasClassAfter === true, 'did not add class')
@@ -240,9 +240,9 @@ describe('Trigger class element', function () {
   describe('removeHighlightedClass', function () {
     it('should add class to trigger element', function () {
       trigger.addHighlightedClass()
-      const hasClassBefore = trigger.triggerElem.classList.contains('trigger-highlighted')
+      const hasClassBefore = trigger.triggerElem.classList.contains('hm-slider--trigger-highlighted')
       trigger.removeHighlightedClass()
-      const hasClassAfter = trigger.triggerElem.classList.contains('trigger-highlighted')
+      const hasClassAfter = trigger.triggerElem.classList.contains('hm-slider--trigger-highlighted')
       assert(trigger.highlighted === false, 'highlighted property did not unset')
       assert(hasClassBefore === true, 'class is not present')
       assert(hasClassAfter === false, 'did not remove class')
@@ -259,32 +259,32 @@ describe('Trigger class element', function () {
 
   describe('toggleHighlightClass', function () {
     it('should add "trigger-highlighted" class when is active (touchstart/mousedown)', function () {
-      const hasClassBefore = trigger.triggerElem.classList.contains('trigger-highlighted')
+      const hasClassBefore = trigger.triggerElem.classList.contains('hm-slider--trigger-highlighted')
       const active = true
       const isMoved = false
       trigger.toggleHighlightClass(active, isMoved)
-      const hasClassAfter = trigger.triggerElem.classList.contains('trigger-highlighted')
+      const hasClassAfter = trigger.triggerElem.classList.contains('hm-slider--trigger-highlighted')
       assert(hasClassBefore === false, 'class is already present')
       assert(hasClassAfter === true, 'did not add class')
     })
 
     it('should add class when trigger moved', function () {
-      const hasClassBefore = trigger.triggerElem.classList.contains('trigger-highlighted')
+      const hasClassBefore = trigger.triggerElem.classList.contains('hm-slider--trigger-highlighted')
       const active = false
       const isMoved = true
       trigger.toggleHighlightClass(active, isMoved)
-      const hasClassAfter = trigger.triggerElem.classList.contains('trigger-highlighted')
+      const hasClassAfter = trigger.triggerElem.classList.contains('hm-slider--trigger-highlighted')
       assert(hasClassBefore === false, 'class is already present')
       assert(hasClassAfter === true, 'did not add class')
     })
 
     it('should remove class when trigger not active and not moved', function () {
       trigger.addHighlightedClass()
-      const hasClassBefore = trigger.triggerElem.classList.contains('trigger-highlighted')
+      const hasClassBefore = trigger.triggerElem.classList.contains('hm-slider--trigger-highlighted')
       const active = false
       const isMoved = false
       trigger.toggleHighlightClass(active, isMoved)
-      const hasClassAfter = trigger.triggerElem.classList.contains('trigger-highlighted')
+      const hasClassAfter = trigger.triggerElem.classList.contains('hm-slider--trigger-highlighted')
       assert(hasClassBefore === true, 'class is not present present')
       assert(hasClassAfter === false, 'class added')
     })
@@ -385,5 +385,98 @@ describe('Trigger class element', function () {
     it('should update visual value')
 
     it('should update indicator side')
+  })
+
+  describe('dataToReturn', function () {
+    it('should return object with proper keys', function () {
+      const returnObj = trigger.dataToReturn()
+      const keys = ['data', 'ui',]
+      const dataKeys = ['cssName', 'opositeCssName', 'value']
+      const uiKeys = ['width', 'value']
+
+      assert.hasAllKeys(returnObj, keys, 'miss "data" or "ui" keys from object')
+      assert.hasAllKeys(returnObj.data, dataKeys, 'miss some keys from object.data')
+      assert.hasAllKeys(returnObj.ui, uiKeys, 'miss some keys from object.ui')
+    })
+  })
+
+  describe('getVisualValueWithCutSign', function () {
+    it('should return formatted value with cut sign if formatNumber is true', function () {
+      trigger.formatNumber = true
+      trigger.currentVisualVal = 23000
+      trigger.sign = false
+      trigger.cutSign = '+'
+      trigger.dataValue = 23000
+      const val = trigger.getVisualValueWithCutSign()
+      assert.strictEqual(val, '23k+', 'wrong formating of visual value')
+    })
+
+    it('should return formatted value without cut sign if current value not on initial state', function () {
+      trigger.formatNumber = true
+      trigger.currentVisualVal = 23000
+      trigger.sign = false
+      trigger.cutSign = '+'
+      trigger.dataValue = 111
+      const val = trigger.getVisualValueWithCutSign()
+      assert.strictEqual(val, '23k', 'wrong formating of visual value')
+    })
+
+    it('should return value without cutSign (+/-) if it is not specified', function () {
+      trigger.formatNumber = true
+      trigger.currentVisualVal = 23000
+      trigger.sign = false
+      trigger.cutSign = false
+      trigger.dataValue = 23000
+      const val = trigger.getVisualValueWithCutSign()
+      assert.strictEqual(val, '23k', 'wrong formating of visual value')
+    })
+
+    it('should return long version of value if formating not set', function () {
+      trigger.formatNumber = false
+      trigger.currentVisualVal = 23000
+      trigger.sign = false
+      trigger.cutSign = false
+      const val = trigger.getVisualValueWithCutSign()
+      assert.strictEqual(val, '23000', 'wrong formating of visual value')
+    })
+  })
+
+  describe('updateCurrentState', function () {
+    it ('should update current state', function () {
+      const stateBefore = JSON.parse(JSON.stringify(trigger))
+      trigger.updateCurrentState(345)
+      const stateAfter = JSON.parse(JSON.stringify(trigger))
+      assert.notDeepEqual(stateBefore, stateAfter, 'state did not change')
+    })
+    
+    it('should update currentPixelVal', function () {
+      trigger.currentPixelVal = 123
+      const valBefore = trigger.currentPixelVal
+      trigger.updateCurrentState(345)
+      const valAfter = trigger.currentPixelVal
+      assert.equal(valBefore, 123)
+      assert.notEqual(valBefore, valAfter, 'currentPixelVal did not change')
+    })
+
+    it('should update currentVisualVal', function () {
+      trigger.minMaxDiapazon = 444
+      trigger.currentPixelVal = 123
+      trigger.triggerMinInit = 0
+      trigger.sliderWidth = 600
+      trigger.triggerElemWidth = 50
+      trigger.anotherTriggerWidth = 50
+      trigger.anotherTriggerValue = 50
+
+      const valBefore = trigger.currentVisualVal
+      trigger.updateCurrentState(345)
+      const valAfter = trigger.currentVisualVal
+      
+      assert.equal(valBefore, 123)
+      assert.notEqual(valBefore, valAfter, 'currentPixelVal did not change')
+    })
+  })
+
+  describe('formatValueWithTen', function () {
+    it('should return formated value if minMaxDiapazon > 10')
   })
 })

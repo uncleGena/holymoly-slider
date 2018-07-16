@@ -1,3 +1,5 @@
+import Common from '../common/Common'
+
 export default class IndicatorSide {
   constructor({
     baseElement,
@@ -16,6 +18,14 @@ export default class IndicatorSide {
   set valueCurr(val) {
     this.$valueCurr = val
     this.indicator.style[this.side] = val + 'px'
+  }
+
+  get isAnimating() {
+    return this.$isAnimating
+  }
+  set isAnimating(val) {
+    Common.toggleTransition(this.indicator, val)
+    this.$isAnimating = val
   }
 
 }
