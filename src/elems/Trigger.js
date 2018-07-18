@@ -29,6 +29,7 @@ export default class Trigger {
     this.onChangeStart = onChangeStart
     this.onChange = onChange
     this.onChangeEnd = onChangeEnd
+    this.valuePerStep = step
     this.step = step ? (minMaxDiapazon / step) : minMaxDiapazon // quantity of steps
     this.updateIndicator = updateIndicator
     this.formatNumber = formatNumber
@@ -219,7 +220,7 @@ export default class Trigger {
 
   getMagneticMovedValue(val, step, fullIndicatorWidth) { // T
     const stepVal = fullIndicatorWidth / step
-    const currentStep = parseInt((val / stepVal).toFixed(0))
+    const currentStep = (val / stepVal).toFixed(0)
     return currentStep * stepVal
   }
 
@@ -289,7 +290,7 @@ export default class Trigger {
   }
 
   formatValueWithTen() { // P
-    if (this.formatNumber && this.minMaxDiapazon <= 10) {
+    if (this.formatNumber && this.valuePerStep === 1) {
       return parseFloat(this.currentVisualVal.toFixed(2))
     } 
     
