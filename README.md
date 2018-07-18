@@ -1,7 +1,7 @@
 # Holymoly slider
 NOTE: it is in beta stage!
 
-This is dependency free drag slider used on www.holymolycasinos.com and holymolyslots.com
+This is dependency free drag slider used on www.holymolycasinos.com/casinos
 
 ## Getting Started
 
@@ -9,9 +9,9 @@ html
 ```html
 <div class="hm-slider casino">  <!-- you may change theme 'casino' to 'slot' -->
     data-hm-slider
-    data-hm-slider-min="777" 
-    data-hm-slider-max="3333" 
-    data-hm-slider-step="3"
+    data-hm-slider-min="100" 
+    data-hm-slider-max="12000" 
+    data-hm-slider-step="50"
 >
     <div class="hm-slider__underlay">
         <div class="hm-slider__trigger-1" data-trigger="left"  data-custom-name="global_score_min"> </div>
@@ -28,7 +28,7 @@ import hmSlider from 'holymoly-slider'
 const slider = hmSlider({
   selector: document.querySelector('[data-hm-slider]'),
   formatNumber: true, // changes '12345' to '12.3k' (default false)
-  step: 6, // you can specify step here
+  step: 100, // you can specify step here
   onInit: data => console.log('onInitEvent', data),
   onChangeStart:  data => console.log('onChangeStart', data),
   onChange:  data => console.log('onChange', data),

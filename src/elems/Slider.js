@@ -66,10 +66,6 @@ export default class Slider {
       }, 50)
     }, false);
 
-    // window.setInterval(() => {
-    //   this.assignSliderWidth()
-    // }, 3000)
-
     const evr = document.querySelector("*")
     evr.addEventListener("animationend", this.assignSliderWidth.bind(this), false);
     evr.addEventListener("transitionend", this.assignSliderWidth.bind(this), false);
@@ -118,7 +114,7 @@ export default class Slider {
   }
 
   assignSliderWidth() {
-    this.sliderWidth = parseInt(window.getComputedStyle(this.sliderElem)['width'])
+    this.sliderWidth = parseFloat(window.getComputedStyle(this.sliderElem)['width'])
   }
 
   getActiveTriggerInd(name) {
