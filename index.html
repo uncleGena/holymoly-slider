@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="./dist/hm-slider.css">
 </head>
 
-<body>
+<body style="display: none">
   <div class="content">
     <div class="slider-container">
 
@@ -241,6 +241,7 @@
 
 
 <script>
+  document.querySelector('body').style.display = 'block'
   const change = data => console.log(data)
   const changeStart = data => console.log('changeStart::', data)
   const changeEnd = data => console.log('changeEnd::', data)
@@ -251,6 +252,11 @@
     
     const init = (data) => {
       console.log(data)
+      setTimeout(() => {
+        slider.command('update').then(data => {
+          console.log(".command('update - ui') ", data)
+        })
+      }, 100)
       // setTimeout(() => {
       //   slider.command('reset').then(data => {
       //     console.log('reset::', data)

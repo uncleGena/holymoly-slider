@@ -34,6 +34,17 @@ const slider = hmSlider({
   onChange:  data => console.log('onChange', data),
   onChangeEnd:  data => console.log('onChangeEnd', data)
 })
+
+// reset slider to initial values
+slider.command('reset').then(data => {
+  console.log('reseted to initial values::', data)
+})
+
+// if you initialized slider under display:none property, you should update it 
+// after you make it visible again
+slider.command('update').then(data => {
+  console.log("slider ui recalculated::", data)
+})
 ```
 
 scss

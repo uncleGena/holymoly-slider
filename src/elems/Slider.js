@@ -182,6 +182,7 @@ export default class Slider {
 
   command(...param) {
     if (param[0] === 'reset') return this.resetSlider()
+    if (param[0] === 'update') return this.updateSliderUI()
   }
 
   resetSlider() {
@@ -198,6 +199,18 @@ export default class Slider {
         setTimeout(() => {
           this.toggleAnimatingState(false)
         }, 500)
+      })
+    })
+  }
+
+  updateSliderUI() {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        this.assignSliderWidth()
+        setTimeout(() => {
+          // return data without active trigger
+          resolve(this.returnDataSetup())
+        })
       })
     })
   }
