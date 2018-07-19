@@ -279,10 +279,10 @@ export default class Trigger {
       return curVal.toFixed(0)
     }
     if (curVal >= 1) {
-      return curVal.toFixed(1)
+      return parseFloat(curVal.toFixed(1)) + ''
     }
     if (curVal > 0) {
-      return curVal.toFixed(2)
+      return parseFloat(curVal.toFixed(2)) + ''
     }
     if (curVal === 0) {
       return curVal.toFixed(0)
@@ -290,9 +290,9 @@ export default class Trigger {
   }
 
   formatValueWithTen() { // P
-    if (this.formatNumber && this.valuePerStep === 1) {
-      return parseFloat(this.currentVisualVal.toFixed(2))
-    } 
+    // if (this.formatNumber && this.valuePerStep === 1) {
+    //   return parseFloat(this.currentVisualVal.toFixed(2))
+    // } 
     
     if (this.formatNumber) {
       return this.valueFormated(this.currentVisualVal)
