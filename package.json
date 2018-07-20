@@ -2,7 +2,7 @@
   "name": "holymoly-slider",
   "version": "0.0.10",
   "description": "holymoly drag slider",
-  "keywords": ["slider", "drag slider"],
+  "keywords": ["slider", "drag slider", "range-slider"],
   "main": "./dist/hm-slider.js",
   "author": "Andrii Kudriavtsev",
   "license": "ISC",

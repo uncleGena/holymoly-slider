@@ -9,7 +9,8 @@
   <link rel="stylesheet" href="./dist/hm-slider.css">
 </head>
 
-<body style="display: none">
+<!-- <body style="display: none"> -->
+<body>
   <div class="content">
     <div class="slider-container">
 
@@ -268,11 +269,34 @@
       selector: elem,
       formatNumber: true,
       step: 6,
-      onInit: init,
-      onChangeStart: changeStart,
-      onChange: change,
-      onChangeEnd: changeEnd
+      // onInit: init,
+      // onChangeStart: changeStart,
+      // onChange: change,
+      // onChangeEnd: changeEnd
     })
+
+    setTimeout(() => {
+      slider.command('set', {
+        hmSliderMin: 5,
+        hmSliderMax: 6
+      })
+  
+      setTimeout(() => {
+        slider.command('set', {
+          hmSliderMin: 6,
+          hmSliderMax: 7
+        })
+
+        setTimeout(() => {
+          slider.command('set', {
+            hmSliderMin: 7,
+            hmSliderMax: 8
+          })
+
+
+        }, 1111)
+      }, 1111)
+    }, 1111)
 
   })
 </script>

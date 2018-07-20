@@ -42,7 +42,8 @@ export default class Slider {
     this.dataSet = this.sliderElem.dataset
     this.minMaxDiapazon = this.dataSet[this.triggersConfig[1].dataName] - this.dataSet[this.triggersConfig[0].dataName]
     this.step = parseFloat(this.dataSet[this.sliderStepName])
-    // console.log(this.step)
+    this.sliderVisualMin = this.dataSet['hmSliderMin']
+    this.sliderVisualMax = this.dataSet['hmSliderMax']
 
     this.triggers = this.triggersConfig.map(o => {
       return new Trigger(this.triggerPropsConfig(o))
@@ -55,7 +56,6 @@ export default class Slider {
       })
     })
 
-    // this.sliderWidth = this.sliderElem.offsetWidth
     this.assignSliderWidth()
 
     let timer;
@@ -63,6 +63,7 @@ export default class Slider {
       clearTimeout(timer)
       timer = setTimeout(() => {
         this.assignSliderWidth()
+        this.updateTriggersPositions()
       }, 50)
     }, false);
 
@@ -92,16 +93,18 @@ export default class Slider {
       step: this.step,
       formatNumber: this.formatNumber,
       sign: this.dataSet['hmSliderSign'] || false,
-      onStart: (props) => {
+      notify: props => {
         setTimeout(() => {
           this.changeOppositeTriggerWidth(props.data, props.ui)
         })
+      },
+      onStart: (props) => {
+        
       },
       onChangeStart: props => {
         this.onChangeStart && this.onChangeStart(this.returnDataSetup(props))
       },
       onChange: props => {
-        this.changeOppositeTriggerWidth(props.data, props.ui)
         this.onChange && this.onChange(this.returnDataSetup(props))
       },
       onChangeEnd: props => {
@@ -146,11 +149,15 @@ export default class Slider {
     return data
   }
 
+  updateTriggersPositions() {
+    this.triggers.forEach(tr => tr.updatePosition())
+  }
+
   changeOppositeTriggerWidth(data, ui) { // T
     this.triggers.forEach(o => {
       if (o.cssName === data.opositeCssName) {
         o.anotherTriggerWidth = ui.width
-        o.anotherTriggerValue = ui.value
+        o.anotherTriggerPxValue = ui.value
       }
     })
   }
@@ -180,9 +187,47 @@ export default class Slider {
     this.indicatorSides.forEach(o => o.isAnimating = bool)
   }
 
+  valInAllowedRange(val) {
+    return (val < this.sliderVisualMin || val > this.sliderVisualMax) ? false : true
+  }
+
+  setParamsIsValid(params) {
+    const newMin = params['hmSliderMin']
+    const newMax = params['hmSliderMax']
+
+    if (newMin !== undefined && newMax !== undefined) {
+      if (newMin > newMax) {
+        console.warn(`New min value (${newMin}) should not be higher than new max value (${newMax})`)
+        return false
+      }
+    } 
+    
+    if (newMin < this.sliderVisualMin) {
+      console.warn(`New min value (${newMin}) is less than allowed (${this.sliderVisualMin})`)
+      return false
+    }
+
+    if (newMax > this.sliderVisualMax) {
+      console.warn(`New max value (${newMax}) should not be higher than allowed (${this.sliderVisualMax})`)
+      return false
+    }
+
+    return true
+  }
+
   command(...param) {
     if (param[0] === 'reset') return this.resetSlider()
     if (param[0] === 'update') return this.updateSliderUI()
+    if (param[0] === 'set') return this.setTriggersValues(param[1])
+  }
+
+  setTriggersValues(params) {
+    this.setParamsIsValid(params) && this.triggers.map(trigg => {
+      const val = params[trigg.dataName]
+      if (params.hasOwnProperty(trigg.dataName)) {
+        trigg.setNewValue(val)
+      }
+    })
   }
 
   resetSlider() {

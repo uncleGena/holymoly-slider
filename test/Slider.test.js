@@ -68,16 +68,16 @@ describe('changeOppositeTriggerWidth', function () {
 
     const trigg = slider.triggers.find(o => o.cssName === data.opositeCssName)
     let anotherTriggerWidth_before = trigg.anotherTriggerWidth
-    let anotherTriggerValue_before = trigg.anotherTriggerValue
+    let anotherTriggerPxValue_before = trigg.anotherTriggerPxValue
 
     slider.changeOppositeTriggerWidth(data, ui)
 
     let anotherTriggerWidth_after = trigg.anotherTriggerWidth
-    let anotherTriggerValue_after = trigg.anotherTriggerValue
+    let anotherTriggerPxValue_after = trigg.anotherTriggerPxValue
 
     assert(anotherTriggerWidth_before !== anotherTriggerWidth_after, 'width not change')
-    assert(anotherTriggerValue_before !== anotherTriggerValue_after, 'value not change')
-    assert(anotherTriggerValue_after === 222, 'set wrong value')
+    assert(anotherTriggerPxValue_before !== anotherTriggerPxValue_after, 'value not change')
+    assert(anotherTriggerPxValue_after === 222, 'set wrong value')
     assert(anotherTriggerWidth_after === 111, 'set wrong width')
   })
 })
