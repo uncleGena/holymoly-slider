@@ -167,17 +167,12 @@ export default class Trigger {
   }
 
   resetToInitial() { // P
-    this.updateCurrentState(0)
-
-    this.updateVisualValue(this.getVisualValueWithCutSign())
-
-    this.updateIndicator(this.dataToReturn())
-
-    this.eventStop()
-
-    // TODO: create animation for triggers
-    return new Promise(resolve => resolve(this.dataToReturn()))
-
+    return new Promise(resolve => {
+      this.setNewValue(this.dataValue)
+      setTimeout(() => {
+        resolve(this.dataToReturn())
+      })
+    })
   }
 
   isMoved() { // T
