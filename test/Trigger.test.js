@@ -316,17 +316,17 @@ describe('Trigger class element', function () {
   })
 
   describe('triggerElemMaxAllow', function () {
-    it('should return subtraction of sliderWidth, triggerElemWidth, anotherTriggerWidth and anotherTriggerValue ', function () {
+    it('should return subtraction of sliderWidth, triggerElemWidth, anotherTriggerWidth and anotherTriggerPxValue ', function () {
       trigger.sliderWidth = 300
       trigger.triggerElemWidth = 50
       trigger.anotherTriggerWidth = 50
-      trigger.anotherTriggerValue = 133
+      trigger.anotherTriggerPxValue = 133
       const val1 = trigger.triggerElemMaxAllow()
       assert(val1 === 67, 'wrong calc result')
       trigger.sliderWidth = 300
       trigger.triggerElemWidth = 56
       trigger.anotherTriggerWidth = 67
-      trigger.anotherTriggerValue = 133
+      trigger.anotherTriggerPxValue = 133
       const val2 = trigger.triggerElemMaxAllow()
       assert(val2 == 44, 'wrong calc result')
     })
@@ -465,7 +465,7 @@ describe('Trigger class element', function () {
       trigger.sliderWidth = 600
       trigger.triggerElemWidth = 50
       trigger.anotherTriggerWidth = 50
-      trigger.anotherTriggerValue = 50
+      trigger.anotherTriggerPxValue = 50
 
       const valBefore = trigger.currentVisualVal
       trigger.updateCurrentState(345)

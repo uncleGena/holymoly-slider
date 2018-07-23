@@ -9,7 +9,8 @@
   <link rel="stylesheet" href="./dist/hm-slider.css">
 </head>
 
-<body style="display: none">
+<!-- <body style="display: none"> -->
+<body>
   <div class="content">
     <div class="slider-container">
 
@@ -252,27 +253,71 @@
     
     const init = (data) => {
       console.log(data)
-      setTimeout(() => {
-        slider.command('update').then(data => {
-          console.log(".command('update - ui') ", data)
-        })
-      }, 100)
       // setTimeout(() => {
-      //   slider.command('reset').then(data => {
-      //     console.log('reset::', data)
+      //   slider.command('update').then(data => {
+      //     console.log(".command('update - ui') ", data)
       //   })
-      // }, 2000)
+      // }, 100)
+      setTimeout(() => {
+        slider.command('reset').then(data => {
+          console.log('reset::', data)
+        })
+      }, 2000)
     }
 
     const slider = hmSlider({
       selector: elem,
       formatNumber: true,
       step: 6,
-      onInit: init,
-      onChangeStart: changeStart,
-      onChange: change,
-      onChangeEnd: changeEnd
+      // onInit: init,
+      // onChangeStart: changeStart,
+      // onChange: change,
+      // onChangeEnd: changeEnd
     })
+
+    // setTimeout(() => {
+    //   slider.command('set', {
+    //     hmSliderMin: 5,
+    //     hmSliderMax: 6
+    //   }).then(data => console.log(data))
+  
+    //   setTimeout(() => {
+    //     slider.command('set', {
+    //       hmSliderMin: 6,
+    //       hmSliderMax: 7
+    //     })
+
+    //     setTimeout(() => {
+    //       slider.command('set', {
+    //         hmSliderMin: 7,
+    //         hmSliderMax: 8
+    //       })
+
+    //       setTimeout(() => {
+    //         slider.command('set', {
+    //           hmSliderMin: 8,
+    //           hmSliderMax: 9
+    //         })
+
+    //         setTimeout(() => {
+    //           slider.command('set', {
+    //             hmSliderMin: 9,
+    //             hmSliderMax: 10
+    //           })
+
+    //           setTimeout(() => {
+    //             slider.command('set', {
+    //               hmSliderMin: 10,
+    //               hmSliderMax: 11
+    //             })
+
+
+    //           }, 555)
+    //         }, 555)
+    //       }, 555)
+    //     }, 555)
+    //   }, 555)
+    // }, 1111)
 
   })
 </script>

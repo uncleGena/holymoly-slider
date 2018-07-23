@@ -45,7 +45,15 @@ slider.command('reset').then(data => {
 slider.command('update').then(data => {
   console.log("slider ui recalculated::", data)
 })
+
+// you may set slider values programmatically, make sure that this value 
+// are consistent with the min and max values
+slider.command('set', {
+  hmSliderMin: 5,
+  hmSliderMax: 8
+}).then(data => console.log('slider::', data))
 ```
+All these commands are asynchronous and return a promise.
 
 scss
 ```scss

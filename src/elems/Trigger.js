@@ -9,6 +9,7 @@ export default class Trigger {
     element,
     sliderWidth,
     minMaxDiapazon,
+    notify = () => {},
     onStart = () => {},
     onChangeStart = () => {},
     onChange = () => {},
@@ -25,6 +26,7 @@ export default class Trigger {
     this.triggerElem = element
     this.sliderWidth = sliderWidth
     this.minMaxDiapazon = minMaxDiapazon
+    this.nofity = notify
     this.onStart = onStart
     this.onChangeStart = onChangeStart
     this.onChange = onChange
@@ -52,8 +54,11 @@ export default class Trigger {
     this.currentVisualVal = dataValue
 
     this.anotherTriggerWidth = null
-    this.anotherTriggerValue = null
+    this.anotherTriggerPxValue = null
+    // this.anotherTriggerVisualVal = null
+    // this.anotherTriggerVisualValInit = null
 
+    this.nofity(this.dataToReturn())
     this.onStart(this.dataToReturn())
 
     // EVENTS
@@ -91,8 +96,8 @@ export default class Trigger {
   set sliderWidth(val) {
     this.$sliderWidth = val
     if (val < this.currentPixelVal) {
-      this.applyTriggerPosition(val - this.triggerElemWidth - this.anotherTriggerWidth)
-      console.warn('Trigger moved outside of slider')
+      // this.applyTriggerPosition(val - this.triggerElemWidth - this.anotherTriggerWidth)
+      // console.warn('Trigger moved outside of slider')
     }
   }
 
@@ -124,8 +129,35 @@ export default class Trigger {
     this.$inMoveState = val
   }
 
-  updateCurrentState(newVal) { // T
-    const maxAllow = this.triggerElemMaxAllow()
+  getGainedPxFromVisualVal(val) {
+    const pxRange = this.minMaxPxRange()
+    const valRange = this.minMaxDiapazon
+    const pxPerVal = pxRange / valRange
+    const valueGain = Math.abs(this.dataValue - val)
+    const pxGain = valueGain * pxPerVal
+    return pxGain
+  }
+
+  setNewValue(val, disableMaxAllow) {
+    const pxGain = this.getGainedPxFromVisualVal(val)
+    this.updateCurrentState(pxGain, disableMaxAllow)
+    this.updateVisualValue(this.getVisualValueWithCutSign())
+    this.updateIndicator(this.dataToReturn())
+    this.applyTriggerPosition(this.currentPixelVal)
+    this.eventStop()
+    this.nofity(this.dataToReturn())
+  }
+
+  updatePosition() {
+    const disableMaxAllow = true
+    this.setNewValue(this.currentVisualVal, disableMaxAllow)
+  }
+
+  updateCurrentState(newVal, disableMaxAllow = false) { // T
+    // max allowed px value of trigger may be disabled in order to 
+    // not block trigger when window resizes
+    const maxAllow = disableMaxAllow ? Infinity : this.triggerElemMaxAllow()
+
     const moveVal = this.getExactMovedValue(this.triggerMinInit, newVal, maxAllow)
     const fullIndicatorWidth = this.sliderWidth - this.triggerElemWidth - this.anotherTriggerWidth
     const currentStep = this.getCurrentStep(moveVal, this.step, fullIndicatorWidth)
@@ -144,11 +176,7 @@ export default class Trigger {
     this.eventStop()
 
     // TODO: create animation for triggers
-    return new Promise(resolve => {
-      // setTimeout(() => {
-        resolve(this.dataToReturn())
-      // }, 500)
-    })
+    return new Promise(resolve => resolve(this.dataToReturn()))
 
   }
 
@@ -246,8 +274,12 @@ export default class Trigger {
     this.triggerElem.innerHTML = visualValue
   }
 
+  minMaxPxRange() {
+    return this.sliderWidth - this.triggerElemWidth - this.anotherTriggerWidth
+  }
+
   triggerElemMaxAllow() { // T
-    return this.sliderWidth - this.triggerElemWidth - this.anotherTriggerWidth - this.anotherTriggerValue
+    return this.sliderWidth - this.triggerElemWidth - this.anotherTriggerWidth - this.anotherTriggerPxValue
   }
 
   cutSignAddition(sign, cutSign, curVal, initVal = null) { // T
@@ -290,15 +322,9 @@ export default class Trigger {
   }
 
   formatValueWithTen() { // P
-    // if (this.formatNumber && this.valuePerStep === 1) {
-    //   return parseFloat(this.currentVisualVal.toFixed(2))
-    // } 
-    
     if (this.formatNumber) {
       return this.valueFormated(this.currentVisualVal)
-    } 
-    
-    else {
+    } else {
       return parseFloat(this.currentVisualVal.toFixed(2))
     }
   }
@@ -336,6 +362,7 @@ export default class Trigger {
 
       const data = this.dataToReturn()
       data.ev = ev
+      this.nofity(data)
       this.onChange(data)
 
       this.updateVisualValue(this.getVisualValueWithCutSign())
@@ -346,6 +373,8 @@ export default class Trigger {
   }
 
   applyTriggerPosition(val) { // T
+    // const percVal = this.pxToPercent(this.sliderWidth, val)
+    // console.warn(percVal)
     this.triggerElem.style[this.cssName] = val + 'px'
   }
 
