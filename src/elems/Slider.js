@@ -150,7 +150,13 @@ export default class Slider {
   }
 
   updateTriggersPositions() {
-    this.triggers.forEach(tr => tr.updatePosition())
+    this.triggers.forEach(tr => {
+      this.toggleAnimatingState(true)
+      tr.updatePosition()
+      setTimeout(() => {
+        this.toggleAnimatingState(false)
+      },111)
+    })
   }
 
   changeOppositeTriggerWidth(data, ui) { // T
@@ -197,18 +203,18 @@ export default class Slider {
 
     if (newMin !== undefined && newMax !== undefined) {
       if (newMin > newMax) {
-        console.warn(`New min value (${newMin}) should not be higher than new max value (${newMax})`)
+        console.warn(`[holymoly-slider] New min value (${newMin}) should not be higher than new max value (${newMax})`)
         return false
       }
     } 
     
     if (newMin < this.sliderVisualMin) {
-      console.warn(`New min value (${newMin}) is less than allowed (${this.sliderVisualMin})`)
+      console.warn(`[holymoly-slider] New min value (${newMin}) is less than allowed (${this.sliderVisualMin})`)
       return false
     }
 
     if (newMax > this.sliderVisualMax) {
-      console.warn(`New max value (${newMax}) should not be higher than allowed (${this.sliderVisualMax})`)
+      console.warn(`[holymoly-slider] New max value (${newMax}) should not be higher than allowed (${this.sliderVisualMax})`)
       return false
     }
 
@@ -216,21 +222,28 @@ export default class Slider {
   }
 
   command(...param) {
-    if (param[0] === 'reset') return this.resetSlider()
+    if (param[0] === 'reset') return this.resetSlider(param[1])
     if (param[0] === 'update') return this.updateSliderUI()
-    if (param[0] === 'set') return this.setTriggersValues(param[1])
+    if (param[0] === 'set') return this.setTriggersValues(param[1], param[2])
   }
 
-  setTriggersValues(params) {
-    this.setParamsIsValid(params) && this.triggers.map(trigg => {
-      const val = params[trigg.dataName]
-      if (params.hasOwnProperty(trigg.dataName)) {
-        trigg.setNewValue(val)
-      }
+  setTriggersValues(params, duration) {
+    return new Promise(resolve => {
+      this.setParamsIsValid(params) && this.triggers.map(trigg => {
+        this.toggleAnimatingState(true)
+        const val = params[trigg.dataName]
+        if (params.hasOwnProperty(trigg.dataName)) {
+          trigg.setNewValue(val)
+          setTimeout(() => {
+            this.toggleAnimatingState(false)
+            resolve(this.returnDataSetup())
+          }, duration || 300)
+        }
+      })
     })
   }
 
-  resetSlider() {
+  resetSlider(duration) {
     this.toggleAnimatingState(true)
 
     // create array of promisified data
@@ -240,10 +253,10 @@ export default class Slider {
       // wait both triggers updates
       Promise.all(prmss).then(resp => {
         // return data without active trigger
-        resolve(this.returnDataSetup())
         setTimeout(() => {
           this.toggleAnimatingState(false)
-        }, 500)
+          resolve(this.returnDataSetup())
+        }, duration || 300)
       })
     })
   }

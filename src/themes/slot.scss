@@ -34,19 +34,19 @@
       font-size: 12px;
       letter-spacing: 1px;
       line-height: 12px;
-      &.trigger-highlighted {
-        // background-color: #E22F59;
-        // background-image: url(http://holymolycasino.com/img/bg-patterns/bg_hmc-red_textured.jpg);
-        // background-size: 400px 400px;
-        border: 2px solid #0076FF;
-        color: #0076FF;
-      }
     }
     &__scroll-indicator {
       left: $triggWidth;
       right: $triggWidth;
       height: $lineHeight;
       background-color: transparent;
+    }
+    &--trigger-highlighted {
+      // background-color: #E22F59;
+      // background-image: url(http://holymolycasino.com/img/bg-patterns/bg_hmc-red_textured.jpg);
+      // background-size: 400px 400px;
+      border: 2px solid #0076FF;
+      color: #0076FF;
     }
   }
 }

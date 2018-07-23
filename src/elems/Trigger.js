@@ -141,14 +141,17 @@ export default class Trigger {
     this.$inMoveState = val
   }
 
-  setNewValue(val) {
+  getGainedPxFromVisualVal(val) {
     const pxRange = this.minMaxPxRange()
     const valRange = this.minMaxDiapazon
     const pxPerVal = pxRange / valRange
-
-    const valueGain = Math.abs(this.currentVisualVal - val)
+    const valueGain = Math.abs(this.dataValue - val)
     const pxGain = valueGain * pxPerVal
+    return pxGain
+  }
 
+  setNewValue(val) {
+    const pxGain = this.getGainedPxFromVisualVal(val)
     
     this.updateCurrentState(pxGain)
     this.updateVisualValue(this.getVisualValueWithCutSign())
@@ -156,13 +159,10 @@ export default class Trigger {
     this.applyTriggerPosition(this.currentPixelVal)
     this.eventStop()
     
-    const data = this.dataToReturn()
-    console.log(this.currentVisualVal, data)
-    this.nofity(data)
+    this.nofity(this.dataToReturn())
   }
 
   updatePosition() {
-    console.log(this.currentVisualVal)
     this.setNewValue(this.currentVisualVal)
   }
 
@@ -186,11 +186,7 @@ export default class Trigger {
     this.eventStop()
 
     // TODO: create animation for triggers
-    return new Promise(resolve => {
-      // setTimeout(() => {
-      resolve(this.dataToReturn())
-      // }, 500)
-    })
+    return new Promise(resolve => resolve(this.dataToReturn()))
 
   }
 
@@ -336,10 +332,6 @@ export default class Trigger {
   }
 
   formatValueWithTen() { // P
-    // if (this.formatNumber && this.valuePerStep === 1) {
-    //   return parseFloat(this.currentVisualVal.toFixed(2))
-    // } 
-
     if (this.formatNumber) {
       return this.valueFormated(this.currentVisualVal)
     } else {
@@ -370,7 +362,6 @@ export default class Trigger {
 
   moveTrigger(ev) {
     const newVal = this.triggerMin + this.movedCursorValue(ev, this.clickCoord)
-    console.log(newVal)
     this.updateCurrentState(newVal)
 
     // если зничение реально изменилось
