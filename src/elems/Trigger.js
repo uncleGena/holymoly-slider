@@ -94,18 +94,6 @@ export default class Trigger {
     return this.$sliderWidth
   }
   set sliderWidth(val) {
-    // const oldWidth = this.$sliderWidth
-    // const newWidth = val
-    // const widthCoefChanged = newWidth / oldWidth
-
-    // const oldPixVal = this.currentPixelVal
-    // const newPixVal = oldPixVal * widthCoefChanged
-
-    // this.currentPixelVal = newPixVal
-
-
-    // console.warn('FFFFFFFF')
-    // this.applyTriggerPosition(newPixVal)
     this.$sliderWidth = val
     if (val < this.currentPixelVal) {
       // this.applyTriggerPosition(val - this.triggerElemWidth - this.anotherTriggerWidth)
@@ -150,24 +138,26 @@ export default class Trigger {
     return pxGain
   }
 
-  setNewValue(val) {
+  setNewValue(val, disableMaxAllow) {
     const pxGain = this.getGainedPxFromVisualVal(val)
-    
-    this.updateCurrentState(pxGain)
+    this.updateCurrentState(pxGain, disableMaxAllow)
     this.updateVisualValue(this.getVisualValueWithCutSign())
     this.updateIndicator(this.dataToReturn())
     this.applyTriggerPosition(this.currentPixelVal)
     this.eventStop()
-    
     this.nofity(this.dataToReturn())
   }
 
   updatePosition() {
-    this.setNewValue(this.currentVisualVal)
+    const disableMaxAllow = true
+    this.setNewValue(this.currentVisualVal, disableMaxAllow)
   }
 
-  updateCurrentState(newVal) { // T
-    const maxAllow = this.triggerElemMaxAllow()
+  updateCurrentState(newVal, disableMaxAllow = false) { // T
+    // max allowed px value of trigger may be disabled in order to 
+    // not block trigger when window resizes
+    const maxAllow = disableMaxAllow ? Infinity : this.triggerElemMaxAllow()
+
     const moveVal = this.getExactMovedValue(this.triggerMinInit, newVal, maxAllow)
     const fullIndicatorWidth = this.sliderWidth - this.triggerElemWidth - this.anotherTriggerWidth
     const currentStep = this.getCurrentStep(moveVal, this.step, fullIndicatorWidth)

@@ -1,5 +1,8 @@
 import Trigger from './Trigger'
 import IndicatorSide from './IndicatorSide';
+import {
+  rejects
+} from 'assert';
 
 export default class Slider {
   constructor({
@@ -99,7 +102,7 @@ export default class Slider {
         })
       },
       onStart: (props) => {
-        
+
       },
       onChangeStart: props => {
         this.onChangeStart && this.onChangeStart(this.returnDataSetup(props))
@@ -150,13 +153,13 @@ export default class Slider {
   }
 
   updateTriggersPositions() {
+    this.toggleAnimatingState(true)
     this.triggers.forEach(tr => {
-      this.toggleAnimatingState(true)
       tr.updatePosition()
-      setTimeout(() => {
-        this.toggleAnimatingState(false)
-      },111)
     })
+    setTimeout(() => {
+      this.toggleAnimatingState(false)
+    }, 333)
   }
 
   changeOppositeTriggerWidth(data, ui) { // T
@@ -206,8 +209,8 @@ export default class Slider {
         console.warn(`[holymoly-slider] New min value (${newMin}) should not be higher than new max value (${newMax})`)
         return false
       }
-    } 
-    
+    }
+
     if (newMin < this.sliderVisualMin) {
       console.warn(`[holymoly-slider] New min value (${newMin}) is less than allowed (${this.sliderVisualMin})`)
       return false
@@ -228,18 +231,24 @@ export default class Slider {
   }
 
   setTriggersValues(params, duration) {
-    return new Promise(resolve => {
-      this.setParamsIsValid(params) && this.triggers.map(trigg => {
-        this.toggleAnimatingState(true)
-        const val = params[trigg.dataName]
-        if (params.hasOwnProperty(trigg.dataName)) {
-          trigg.setNewValue(val)
-          setTimeout(() => {
-            this.toggleAnimatingState(false)
-            resolve(this.returnDataSetup())
-          }, duration || 300)
-        }
-      })
+    return new Promise((resolve, reject) => {
+      if (this.setParamsIsValid(params)) {
+
+        this.triggers.map(trigg => {
+          this.toggleAnimatingState(true)
+          const val = params[trigg.dataName]
+          if (params.hasOwnProperty(trigg.dataName)) {
+            trigg.setNewValue(val)
+            setTimeout(() => {
+              this.toggleAnimatingState(false)
+              resolve(this.returnDataSetup())
+            }, duration || 300)
+          }
+        })
+
+      } else {
+        reject('[holymoly-slider] Set params is not valid.')
+      }
     })
   }
 
