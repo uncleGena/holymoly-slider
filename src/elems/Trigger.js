@@ -199,6 +199,7 @@ export default class Trigger {
   }
 
   eventStart(ev) { // T
+    ev.preventDefault();
     this.clickCoord = this.evPageX(ev, this.isTouchDevice)
     this.active = true
   }
