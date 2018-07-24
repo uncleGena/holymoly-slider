@@ -154,10 +154,10 @@ describe('Trigger class element', function () {
       cursorValOnLeft = trigger.movedCursorValue(ev, clicked)
       assert(cursorValOnLeft === moved - clicked, 'asdfa sdf asdf asdf ')
     })
-    
+
     it('should get right value of cursor on right side', function () {
       trigger.cssName = 'right',
-      trigger.dataName = 'hmSliderMax'
+        trigger.dataName = 'hmSliderMax'
       cursorValOnRight = trigger.movedCursorValue(ev, 345)
       assert(cursorValOnRight === clicked - moved, 'asdfa sdf asdf asdf ')
     })
@@ -390,7 +390,7 @@ describe('Trigger class element', function () {
   describe('dataToReturn', function () {
     it('should return object with proper keys', function () {
       const returnObj = trigger.dataToReturn()
-      const keys = ['data', 'ui',]
+      const keys = ['data', 'ui', ]
       const dataKeys = ['cssName', 'opositeCssName', 'value']
       const uiKeys = ['width', 'value']
 
@@ -442,13 +442,24 @@ describe('Trigger class element', function () {
   })
 
   describe('updateCurrentState', function () {
-    it ('should update current state', function () {
+    it('should update current state', function () {
       const stateBefore = JSON.parse(JSON.stringify(trigger))
+      trigger.sliderWidth = 400
+      trigger.triggerElemWidth = 50
+      trigger.anotherTriggerWidth = 50
+      trigger.anotherTriggerPxValue = 70
+      trigger.triggerMinInit = 0
+      trigger.step = 1
+      trigger.minMaxDiapazon = 2500
+
       trigger.updateCurrentState(345)
+
       const stateAfter = JSON.parse(JSON.stringify(trigger))
+      assert.notEqual(stateBefore.currentVisualVal, stateAfter.currentVisualVal, 'currentVisualVal did not cahnge')
+      assert.notEqual(stateBefore.$currentPixelVal, stateAfter.$currentPixelVal, '$currentPixelVal did not change')
       assert.notDeepEqual(stateBefore, stateAfter, 'state did not change')
     })
-    
+
     it('should update currentPixelVal', function () {
       trigger.currentPixelVal = 123
       const valBefore = trigger.currentPixelVal
@@ -470,13 +481,106 @@ describe('Trigger class element', function () {
       const valBefore = trigger.currentVisualVal
       trigger.updateCurrentState(345)
       const valAfter = trigger.currentVisualVal
-      
+
       assert.equal(valBefore, 123)
       assert.notEqual(valBefore, valAfter, 'currentPixelVal did not change')
     })
   })
 
-  describe('formatValueWithTen', function () {
-    it('should return formated value if minMaxDiapazon > 10')
+  describe('formatValueOrNot', function () {
+    it('should return string with formated value if this.formatNumber', function () {
+      trigger.formatNumber = true
+      trigger.currentVisualVal = 300000
+      const val = trigger.formatValueOrNot()
+      assert.isString(val, 'formatted value is not a string')
+      assert.notEqual(val, '300000', 'did not format value if value is 300000')
+    })
+
+    it('should return string with decimal if not this.formatNumber', function () {
+      trigger.formatNumber = false
+      trigger.currentVisualVal = 123.2345
+      const val = trigger.formatValueOrNot()
+      assert.isString(val, 'value is not a string')
+      assert.equal(val, '123.23', 'value did not parseFloated and toFixed(2)')
+    })
+  })
+
+  describe('minMaxPxRange', function () {
+    it('should return proper calculation of sliderWidth triggerElemWidth anotherTriggerWidth', function () {
+      trigger.sliderWidth = 200
+      trigger.triggerElemWidth = 50
+      trigger.anotherTriggerWidth = 50
+      const val = trigger.minMaxPxRange()
+      assert.equal(val, 100, 'wrong value')
+    })
+  })
+
+  describe('getGainedPxFromVisualVal', function () {
+    it('should return px value of trigger position according to trigger visual value', function () {
+      trigger.sliderWidth = 200
+      trigger.triggerElemWidth = 50
+      trigger.anotherTriggerWidth = 50
+
+      trigger.minMaxDiapazon = 300
+      trigger.dataValue = 50
+
+      const val = trigger.getGainedPxFromVisualVal(200)
+      assert.equal(val, 50, 'wrong transformation visual value in to px position')
+    })
+
+    it('should return same value event if new value lower than 0', function () {
+      trigger.sliderWidth = 200
+      trigger.triggerElemWidth = 50
+      trigger.anotherTriggerWidth = 50
+
+      trigger.minMaxDiapazon = 300
+      trigger.dataValue = 50
+
+      const val = trigger.getGainedPxFromVisualVal(-100)
+      assert.equal(val, 50, 'wrong transformation visual value in to px position')
+    })
+
+  })
+
+  describe('setNewValue', function () {
+    it('should update current state', function () {
+      const stateBefore = JSON.parse(JSON.stringify(trigger))
+      trigger.sliderWidth = 400
+      trigger.triggerElemWidth = 50
+      trigger.anotherTriggerWidth = 50
+      trigger.anotherTriggerPxValue = 70
+      trigger.triggerMinInit = 0
+      trigger.step = 1
+      trigger.minMaxDiapazon = 2500
+
+      trigger.setNewValue(345)
+
+      const stateAfter = JSON.parse(JSON.stringify(trigger))
+      assert.equal(stateBefore.currentVisualVal, stateAfter.currentVisualVal, 'currentVisualVal did cahnge')
+      assert.notEqual(stateBefore.$currentPixelVal, stateAfter.$currentPixelVal, '$currentPixelVal did not change')
+      assert.notDeepEqual(stateBefore, stateAfter, 'state did not change')
+    })
+
+    it('should update visual value with cut sign or not', function () {
+      trigger.triggerElem.innerHTML = 222
+      const contentBefore = trigger.triggerElem.innerHTML
+      trigger.sliderWidth = 400
+      trigger.triggerElemWidth = 50
+      trigger.anotherTriggerWidth = 50
+      trigger.anotherTriggerPxValue = 70
+      trigger.triggerMinInit = 0
+      trigger.dataValue = 22
+
+      trigger.setNewValue(111)
+
+      const contentAfter = parseInt(trigger.triggerElem.innerHTML)
+      assert.notEqual(contentBefore, contentAfter, 'content left the same')
+      assert.equal(contentAfter, 111, 'wrong visual value')
+    })
+
+    it('should update indicator')
+    it('should apply trigger position')
+    it('should stop event')
+    it('should notify Slider with return data')
   })
 })

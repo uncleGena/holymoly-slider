@@ -20,7 +20,7 @@ export default class Trigger {
     sign = false
   }) {
     this.dataName = dataName
-    this.dataValue = dataValue
+    this.dataValue = dataValue // initial visual value
     this.cssName = cssName
     this.opositeCssName = opositeCssName
     this.triggerElem = element
@@ -129,7 +129,7 @@ export default class Trigger {
     this.$inMoveState = val
   }
 
-  getGainedPxFromVisualVal(val) {
+  getGainedPxFromVisualVal(val) { // T
     const pxRange = this.minMaxPxRange()
     const valRange = this.minMaxDiapazon
     const pxPerVal = pxRange / valRange
@@ -161,7 +161,7 @@ export default class Trigger {
     const moveVal = this.getExactMovedValue(this.triggerMinInit, newVal, maxAllow)
     const fullIndicatorWidth = this.sliderWidth - this.triggerElemWidth - this.anotherTriggerWidth
     const currentStep = this.getCurrentStep(moveVal, this.step, fullIndicatorWidth)
-
+    
     this.currentPixelVal = this.getMagneticMovedValue(moveVal, this.step, fullIndicatorWidth)
     this.currentVisualVal = this.getVisualValue(this.minMaxDiapazon, this.step, currentStep)
   }
@@ -270,7 +270,7 @@ export default class Trigger {
     this.triggerElem.innerHTML = visualValue
   }
 
-  minMaxPxRange() {
+  minMaxPxRange() { // T
     return this.sliderWidth - this.triggerElemWidth - this.anotherTriggerWidth
   }
 
@@ -317,16 +317,16 @@ export default class Trigger {
     } else return curVal
   }
 
-  formatValueWithTen() { // P
+  formatValueOrNot() { // T
     if (this.formatNumber) {
       return this.valueFormated(this.currentVisualVal)
     } else {
-      return parseFloat(this.currentVisualVal.toFixed(2))
+      return parseFloat(this.currentVisualVal.toFixed(2)) + ''
     }
   }
 
   getVisualValueWithCutSign() { // T
-    const formatedValue = this.formatValueWithTen()
+    const formatedValue = this.formatValueOrNot()
     const cuttedSign = this.cutSignAddition(this.sign, this.cutSign, this.currentVisualVal, this.dataValue)
     const visualValWithCutSign = formatedValue + cuttedSign
     return visualValWithCutSign
@@ -369,8 +369,6 @@ export default class Trigger {
   }
 
   applyTriggerPosition(val) { // T
-    // const percVal = this.pxToPercent(this.sliderWidth, val)
-    // console.warn(percVal)
     this.triggerElem.style[this.cssName] = val + 'px'
   }
 
