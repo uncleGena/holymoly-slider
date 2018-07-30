@@ -44,7 +44,7 @@ export default class Trigger {
     this.highlighted = this.triggerElem.classList.contains('trigger-active') // through get/set
     this.isTouchDevice = false
     this.clickCoord = null
-    this.moveValOld = null
+    this.oldPixelVal = null
     this.triggerDataset = this.triggerElem.dataset
     this.cutSign = this.triggerElem.dataset['hmSliderCutSign'] || false
     this.inMoveState = false
@@ -55,8 +55,6 @@ export default class Trigger {
 
     this.anotherTriggerWidth = null
     this.anotherTriggerPxValue = null
-    // this.anotherTriggerVisualVal = null
-    // this.anotherTriggerVisualValInit = null
 
     this.nofity(this.dataToReturn())
     this.onStart(this.dataToReturn())
@@ -109,14 +107,6 @@ export default class Trigger {
     this.toggleHighlightClass(this.active, this.isMoved())
   }
 
-  get currentPixelVal() {
-    return this.$currentPixelVal
-  }
-  set currentPixelVal(val) {
-    this.$currentPixelVal = val
-    this.applyTriggerPosition(val)
-  }
-
   get inMoveState() {
     return this.$inMoveState
   }
@@ -138,7 +128,7 @@ export default class Trigger {
     return pxGain
   }
 
-  setNewValue(val, disableMaxAllow) {
+  setNewValue(val, disableMaxAllow) { // T
     const pxGain = this.getGainedPxFromVisualVal(val)
     this.updateCurrentState(pxGain, disableMaxAllow)
     this.updateVisualValue(this.getVisualValueWithCutSign())
@@ -148,7 +138,7 @@ export default class Trigger {
     this.nofity(this.dataToReturn())
   }
 
-  updatePosition() {
+  updatePosition() { // T
     const disableMaxAllow = true
     this.setNewValue(this.currentVisualVal, disableMaxAllow)
   }
@@ -166,7 +156,7 @@ export default class Trigger {
     this.currentVisualVal = this.getVisualValue(this.minMaxDiapazon, this.step, currentStep)
   }
 
-  resetToInitial() { // P
+  resetToInitial() { // T
     return new Promise(resolve => {
       this.setNewValue(this.dataValue)
       setTimeout(() => {
@@ -351,18 +341,17 @@ export default class Trigger {
     this.updateCurrentState(newVal)
 
     // если зничение реально изменилось
-    if (this.moveValOld !== this.currentPixelVal) {
+    if (this.oldPixelVal !== this.currentPixelVal) {
       this.inMoveState = true
 
-      this.updateIndicator(this.dataToReturn())
-
       const data = this.dataToReturn()
+      this.updateIndicator(data)
       data.ev = ev
       this.nofity(data)
       this.onChange(data)
 
       this.updateVisualValue(this.getVisualValueWithCutSign())
-      this.moveValOld = this.currentPixelVal
+      this.oldPixelVal = this.currentPixelVal
       this.applyTriggerPosition(this.currentPixelVal)
     }
 

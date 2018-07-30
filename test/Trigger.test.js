@@ -3,6 +3,7 @@ import {
   assert
 } from 'chai'
 import Trigger from '../src/elems/Trigger'
+import sinon from 'sinon'
 
 // trigger instance
 let trigger = null
@@ -54,533 +55,557 @@ afterEach(function () {
   trigger = null
 })
 
-describe('Trigger class element', function () {
-  describe('Slider element', function () {
-    it('should has a triggerElem', function () {
-      assert(!!trigger.triggerElem === true, 'has not selector')
-    })
 
-    it('should has an element which is HTMLElement', function () {
-      assert(trigger.triggerElem instanceof HTMLElement, 'triggerElem is not a HTMLElement')
-    })
+describe('Slider element', function () {
+  it('should has a triggerElem', function () {
+    assert(!!trigger.triggerElem === true, 'has not selector')
   })
 
-  describe('evPageX function', function () {
-    it('should return proper clientX value depending on device type', function () {
-
-      const x = 234
-
-      const evMouse = new MouseEvent('click', {
-        clientX: x
-      })
-      const xCoordMouse = trigger.evPageX(evMouse, false)
-      assert(xCoordMouse === x, 'returns wrong x coordinates on mouse event')
-
-      const evTouch = new TouchEvent('touchstart', {
-        changedTouches: [{
-          clientX: x
-        }]
-      })
-      const xCoordTouch = trigger.evPageX(evTouch, true)
-      assert(xCoordTouch === x, 'returns wrong x coordinates on touch event')
-
-    })
+  it('should has an element which is HTMLElement', function () {
+    assert(trigger.triggerElem instanceof HTMLElement, 'triggerElem is not a HTMLElement')
   })
+})
 
-  describe('eventStrart', function () {
-    it('should change state', function () {
-      const x = 234
-      let ev = new MouseEvent('click', {
-        clientX: x
-      })
+describe('constructor', function () {
+  it('should add event listener with four events')
+})
 
-      const type = 'left'
-      trigger.eventStart(ev, type)
+describe('evPageX function', function () {
+  it('should return proper clientX value depending on device type', function () {
 
-      assert(trigger.clickCoord === x, 'evPageX() returns wrong click coordinates')
-      assert(trigger.active === true, 'active state is not set')
-    })
-  })
-
-  describe('eventStop', function () {
-    it('should set this.active and trigger miminum css left/right value', function () {
-      const x = 234
-      let ev = new MouseEvent('click', {
-        clientX: x
-      })
-
-      const type = 'left'
-      trigger.eventStop(ev, type)
-
-      assert(trigger.active === false, 'active state is not false')
-      assert.isNumber(trigger.triggerMin, 'minimum value is not number')
-    })
-  })
-
-  describe('eventMove', function () {
     const x = 234
-    let ev = new MouseEvent('mousemove', {
+
+    const evMouse = new MouseEvent('click', {
+      clientX: x
+    })
+    const xCoordMouse = trigger.evPageX(evMouse, false)
+    assert(xCoordMouse === x, 'returns wrong x coordinates on mouse event')
+
+    const evTouch = new TouchEvent('touchstart', {
+      changedTouches: [{
+        clientX: x
+      }]
+    })
+    const xCoordTouch = trigger.evPageX(evTouch, true)
+    assert.equal(xCoordTouch, x, 'returns wrong x coordinates on touch event')
+
+  })
+})
+
+describe('eventStrart', function () {
+  it('should change state', function () {
+    const x = 234
+    let ev = new MouseEvent('click', {
       clientX: x
     })
 
-    it('should not change state if trigger is not active', function () {
-      trigger.active = false
-      const oldState = JSON.stringify(trigger)
-      trigger.eventMove(ev)
-      const newState = JSON.stringify(trigger)
-      assert.deepEqual(oldState, newState, 'changed state event if was not active')
+    const type = 'left'
+    trigger.eventStart(ev, type)
+
+    assert.equal(trigger.clickCoord, x, 'evPageX() returns wrong click coordinates')
+    assert.equal(trigger.active, true, 'active state is not set')
+  })
+})
+
+describe('eventStop', function () {
+  it('should set this.active and trigger miminum css left/right value', function () {
+    const x = 234
+    let ev = new MouseEvent('click', {
+      clientX: x
     })
 
-    it('should change state if trigger is active', function () {
-      trigger.active = true
-      const oldState = JSON.stringify(trigger)
-      trigger.eventMove(ev)
-      const newState = JSON.stringify(trigger)
-      assert.notDeepEqual(oldState, newState, 'state did not chage')
-    })
+    const type = 'left'
+    trigger.eventStop(ev, type)
+
+    assert.equal(trigger.active, false, 'active state is not false')
+    assert.isNumber(trigger.triggerMin, 'minimum value is not number')
+  })
+})
+
+describe('eventMove', function () {
+  const x = 234
+  let ev = new MouseEvent('mousemove', {
+    clientX: x
   })
 
-  describe('movedCursorValue', function () {
-
-    const clicked = 345
-    const moved = 234
-    let ev = new MouseEvent('mousemove', {
-      clientX: moved
-    })
-    let cursorValOnLeft;
-    let cursorValOnRight;
-
-    it('should get right value of cursor on left side', function () {
-      cursorValOnLeft = trigger.movedCursorValue(ev, clicked)
-      assert(cursorValOnLeft === moved - clicked, 'asdfa sdf asdf asdf ')
-    })
-
-    it('should get right value of cursor on right side', function () {
-      trigger.cssName = 'right',
-        trigger.dataName = 'hmSliderMax'
-      cursorValOnRight = trigger.movedCursorValue(ev, 345)
-      assert(cursorValOnRight === clicked - moved, 'asdfa sdf asdf asdf ')
-    })
-
-    it('should be proportionally equal', function () {
-      assert(cursorValOnLeft !== cursorValOnRight, 'value of both cursor same when moving')
-      assert(cursorValOnLeft * -1 === cursorValOnRight, 'cursor distances are not equal when moving')
-    })
+  it('should not change state if trigger is not active', function () {
+    trigger.active = false
+    const oldState = JSON.stringify(trigger)
+    trigger.eventMove(ev)
+    const newState = JSON.stringify(trigger)
+    assert.deepEqual(oldState, newState, 'changed state event if was not active')
   })
 
-  describe('getExactMovedValue', function () {
-    it('should return value considering maximum, minimum and position of another trig', function () {
-      const val = trigger.getExactMovedValue(100, 300, 400)
-      assert(val === 300, 'value of trigger is wrong calculated')
-    })
+  it('should change state if trigger is active', function () {
+    trigger.active = true
+    const oldState = JSON.stringify(trigger)
+    trigger.eventMove(ev)
+    const newState = JSON.stringify(trigger)
+    assert.notDeepEqual(oldState, newState, 'state did not chage')
+  })
+})
 
-    it('should return value of another trigger if it cursor position more then max allow', function () {
-      const val = trigger.getExactMovedValue(100, 5555, 400)
-      assert(val === 400, 'value of trigger is more than max allowed')
-    })
+describe('movedCursorValue', function () {
 
-    it('should return minimum trigger value if cursor position less then minimum trig. val.', function () {
-      const val = trigger.getExactMovedValue(100, 11, 400)
-      assert(val === 100, 'value of trigger is less then minimum allowed')
-    })
+  const clicked = 345
+  const moved = 234
+  let ev = new MouseEvent('mousemove', {
+    clientX: moved
+  })
+  let cursorValOnLeft;
+  let cursorValOnRight;
+
+  it('should get right value of cursor on left side', function () {
+    cursorValOnLeft = trigger.movedCursorValue(ev, clicked)
+    assert.equal(cursorValOnLeft, moved - clicked, 'asdfa sdf asdf asdf ')
   })
 
-  describe('getCurrentStep', function () {
-    it('should return number of current step while moving in miminum state', function () {
-      const val = trigger.getCurrentStep(33, 44, 100)
-      assert(val === 15, 'wrong current value')
-    })
-
-    it('should return number of current step while moving in maximum state', function () {
-      const val = trigger.getCurrentStep(33, 46, 100)
-      assert(val === 15, 'wrong current value')
-    })
-  })
-
-  describe('getMagneticMovedValue', function () {
-    it('should return moving value depending on the step', function () {
-      const val = parseFloat(trigger.getMagneticMovedValue(36, 7, 100).toFixed(4))
-      assert(val === 42.8571, 'returns wrong value')
-    })
-
-    it('should return same value with close moving value', function () {
-      const val = parseFloat(trigger.getMagneticMovedValue(49, 7, 100).toFixed(4))
-      assert(val === 42.8571, 'with closest moving return wrong value')
-    })
-  })
-
-  describe('getMinMaxCurrentStep', function () {
-    it('should return visual value depending on step hmSliderMin', function () {
-      trigger.dataValue = 777
-      const val = parseFloat(trigger.getMinMaxCurrentStep(2556, 7, 4, 365.14285714285717))
-      assert(val === 2237.5714285714284, 'return wrong value for hmSliderMin')
-    })
-
-    it('should return visual value depending on step hmSliderMax', function () {
+  it('should get right value of cursor on right side', function () {
+    trigger.cssName = 'right',
       trigger.dataName = 'hmSliderMax'
-      trigger.cssName = 'right'
-      trigger.dataValue = 3333
-      const val = parseFloat(trigger.getMinMaxCurrentStep(2556, 7, 2, 365.14285714285717))
-      assert(val === 2602.714285714286, 'return wrong value for hmSliderMax')
-    })
+    cursorValOnRight = trigger.movedCursorValue(ev, 345)
+    assert.equal(cursorValOnRight, clicked - moved, 'asdfa sdf asdf asdf ')
   })
 
-  describe('addHighlightedClass', function () {
-    it('should add class to trigger element', function () {
-      const hasClassBefore = trigger.triggerElem.classList.contains('hm-slider--trigger-highlighted')
-      trigger.addHighlightedClass()
-      const hasClassAfter = trigger.triggerElem.classList.contains('hm-slider--trigger-highlighted')
-      assert(trigger.highlighted === true, 'highlighted did not set')
-      assert(hasClassBefore === false, 'class is already present')
-      assert(hasClassAfter === true, 'did not add class')
-      assert(hasClassBefore !== hasClassAfter, 'addHighlightedClass does not add class')
-    })
+  it('should be proportionally equal', function () {
+    assert(cursorValOnLeft !== cursorValOnRight, 'value of both cursor same when moving')
+    assert.equal(cursorValOnLeft * -1, cursorValOnRight, 'cursor distances are not equal when moving')
+  })
+})
+
+describe('getExactMovedValue', function () {
+  it('should return value considering maximum, minimum and position of another trig', function () {
+    const val = trigger.getExactMovedValue(100, 300, 400)
+    assert.equal(val, 300, 'value of trigger is wrong calculated')
   })
 
-  describe('removeHighlightedClass', function () {
-    it('should add class to trigger element', function () {
-      trigger.addHighlightedClass()
-      const hasClassBefore = trigger.triggerElem.classList.contains('hm-slider--trigger-highlighted')
-      trigger.removeHighlightedClass()
-      const hasClassAfter = trigger.triggerElem.classList.contains('hm-slider--trigger-highlighted')
-      assert(trigger.highlighted === false, 'highlighted property did not unset')
-      assert(hasClassBefore === true, 'class is not present')
-      assert(hasClassAfter === false, 'did not remove class')
-      assert(hasClassBefore !== hasClassAfter, 'addHighlightedClass does not add class')
-    })
+  it('should return value of another trigger if it cursor position more then max allow', function () {
+    const val = trigger.getExactMovedValue(100, 5555, 400)
+    assert.equal(val, 400, 'value of trigger is more than max allowed')
   })
 
-  describe('getVisualValue', function () {
-    it('should return full vusual representation of current value', function () {
-      const val = trigger.getVisualValue(2556, 7, 3)
-      assert(val === 1218.4285714285713, 'return wrong value')
-    })
+  it('should return minimum trigger value if cursor position less then minimum trig. val.', function () {
+    const val = trigger.getExactMovedValue(100, 11, 400)
+    assert.equal(val, 100, 'value of trigger is less then minimum allowed')
+  })
+})
+
+describe('getCurrentStep', function () {
+  it('should return number of current step while moving in miminum state', function () {
+    const val = trigger.getCurrentStep(33, 44, 100)
+    assert.equal(val, 15, 'wrong current value')
   })
 
-  describe('toggleHighlightClass', function () {
-    it('should add "trigger-highlighted" class when is active (touchstart/mousedown)', function () {
-      const hasClassBefore = trigger.triggerElem.classList.contains('hm-slider--trigger-highlighted')
-      const active = true
-      const isMoved = false
-      trigger.toggleHighlightClass(active, isMoved)
-      const hasClassAfter = trigger.triggerElem.classList.contains('hm-slider--trigger-highlighted')
-      assert(hasClassBefore === false, 'class is already present')
-      assert(hasClassAfter === true, 'did not add class')
-    })
+  it('should return number of current step while moving in maximum state', function () {
+    const val = trigger.getCurrentStep(33, 46, 100)
+    assert.equal(val, 15, 'wrong current value')
+  })
+})
 
-    it('should add class when trigger moved', function () {
-      const hasClassBefore = trigger.triggerElem.classList.contains('hm-slider--trigger-highlighted')
-      const active = false
-      const isMoved = true
-      trigger.toggleHighlightClass(active, isMoved)
-      const hasClassAfter = trigger.triggerElem.classList.contains('hm-slider--trigger-highlighted')
-      assert(hasClassBefore === false, 'class is already present')
-      assert(hasClassAfter === true, 'did not add class')
-    })
-
-    it('should remove class when trigger not active and not moved', function () {
-      trigger.addHighlightedClass()
-      const hasClassBefore = trigger.triggerElem.classList.contains('hm-slider--trigger-highlighted')
-      const active = false
-      const isMoved = false
-      trigger.toggleHighlightClass(active, isMoved)
-      const hasClassAfter = trigger.triggerElem.classList.contains('hm-slider--trigger-highlighted')
-      assert(hasClassBefore === true, 'class is not present present')
-      assert(hasClassAfter === false, 'class added')
-    })
+describe('getMagneticMovedValue', function () {
+  it('should return moving value depending on the step', function () {
+    const val = parseFloat(trigger.getMagneticMovedValue(36, 7, 100).toFixed(4))
+    assert.equal(val, 42.8571, 'returns wrong value')
   })
 
-  describe('isMoved', function () {
-    it('should not show it was moved from min state if current pexel value is the same as minimum', function () {
-      trigger.currentPixelVal = 300
-      trigger.triggerMinInit = 300
-      assert(trigger.isMoved() === false, 'show that it was moved')
-    })
+  it('should return same value with close moving value', function () {
+    const val = parseFloat(trigger.getMagneticMovedValue(49, 7, 100).toFixed(4))
+    assert.equal(val, 42.8571, 'with closest moving return wrong value')
+  })
+})
 
-    it('should show moved if current px value is not the same as minimum', function () {
-      trigger.currentPixelVal = 222
-      trigger.triggerMinInit = 0
-      assert(trigger.isMoved() === true, 'show that it was moved')
-    })
+describe('getMinMaxCurrentStep', function () {
+  it('should return visual value depending on step hmSliderMin', function () {
+    trigger.dataValue = 777
+    const val = parseFloat(trigger.getMinMaxCurrentStep(2556, 7, 4, 365.14285714285717))
+    assert.equal(val, 2237.5714285714284, 'return wrong value for hmSliderMin')
   })
 
-  describe('updateVisualValue', function () {
-    it('should update innerHTML', function () {
-      const contentBefore = trigger.triggerElem.innerHTML
-      const val = 12345
-      trigger.updateVisualValue(val)
-      const contentAfter = parseInt(trigger.triggerElem.innerHTML)
-      assert(contentAfter === val, 'content did not update')
-      assert(contentBefore !== contentAfter, 'content left the same')
-    })
+  it('should return visual value depending on step hmSliderMax', function () {
+    trigger.dataName = 'hmSliderMax'
+    trigger.cssName = 'right'
+    trigger.dataValue = 3333
+    const val = parseFloat(trigger.getMinMaxCurrentStep(2556, 7, 2, 365.14285714285717))
+    assert.equal(val, 2602.714285714286, 'return wrong value for hmSliderMax')
+  })
+})
+
+describe('addHighlightedClass', function () {
+  it('should add class to trigger element', function () {
+    const hasClassBefore = trigger.triggerElem.classList.contains('hm-slider--trigger-highlighted')
+    trigger.addHighlightedClass()
+    const hasClassAfter = trigger.triggerElem.classList.contains('hm-slider--trigger-highlighted')
+    assert.equal(trigger.highlighted, true, 'highlighted did not set')
+    assert.equal(hasClassBefore, false, 'class is already present')
+    assert.equal(hasClassAfter, true, 'did not add class')
+    assert(hasClassBefore !== hasClassAfter, 'addHighlightedClass does not add class')
+  })
+})
+
+describe('removeHighlightedClass', function () {
+  it('should add class to trigger element', function () {
+    trigger.addHighlightedClass()
+    const hasClassBefore = trigger.triggerElem.classList.contains('hm-slider--trigger-highlighted')
+    trigger.removeHighlightedClass()
+    const hasClassAfter = trigger.triggerElem.classList.contains('hm-slider--trigger-highlighted')
+    assert.equal(trigger.highlighted, false, 'highlighted property did not unset')
+    assert.equal(hasClassBefore, true, 'class is not present')
+    assert.equal(hasClassAfter, false, 'did not remove class')
+    assert(hasClassBefore !== hasClassAfter, 'addHighlightedClass does not add class')
+  })
+})
+
+describe('getVisualValue', function () {
+  it('should return full vusual representation of current value', function () {
+    const val = trigger.getVisualValue(2556, 7, 3)
+    assert.equal(val, 1218.4285714285713, 'return wrong value')
+  })
+})
+
+describe('toggleHighlightClass', function () {
+  it('should add "trigger-highlighted" class when is active (touchstart/mousedown)', function () {
+    const hasClassBefore = trigger.triggerElem.classList.contains('hm-slider--trigger-highlighted')
+    const active = true
+    const isMoved = false
+    trigger.toggleHighlightClass(active, isMoved)
+    const hasClassAfter = trigger.triggerElem.classList.contains('hm-slider--trigger-highlighted')
+    assert.equal(hasClassBefore, false, 'class is already present')
+    assert.equal(hasClassAfter, true, 'did not add class')
   })
 
-  describe('triggerElemMaxAllow', function () {
-    it('should return subtraction of sliderWidth, triggerElemWidth, anotherTriggerWidth and anotherTriggerPxValue ', function () {
-      trigger.sliderWidth = 300
-      trigger.triggerElemWidth = 50
-      trigger.anotherTriggerWidth = 50
-      trigger.anotherTriggerPxValue = 133
-      const val1 = trigger.triggerElemMaxAllow()
-      assert(val1 === 67, 'wrong calc result')
-      trigger.sliderWidth = 300
-      trigger.triggerElemWidth = 56
-      trigger.anotherTriggerWidth = 67
-      trigger.anotherTriggerPxValue = 133
-      const val2 = trigger.triggerElemMaxAllow()
-      assert(val2 == 44, 'wrong calc result')
-    })
+  it('should add class when trigger moved', function () {
+    const hasClassBefore = trigger.triggerElem.classList.contains('hm-slider--trigger-highlighted')
+    const active = false
+    const isMoved = true
+    trigger.toggleHighlightClass(active, isMoved)
+    const hasClassAfter = trigger.triggerElem.classList.contains('hm-slider--trigger-highlighted')
+    assert.equal(hasClassBefore, false, 'class is already present')
+    assert.equal(hasClassAfter, true, 'did not add class')
   })
 
-  describe('cutSignAddition', function () {
-    it('should return cut sign if sign is not specified', function () {
-      let cutSign = '+'
-      let sign = false
-      let curVal = 0
-      let initVal = 0
-      let val = trigger.cutSignAddition(sign, cutSign, curVal, initVal)
-      assert(val === cutSign, 'cut sign do not return')
-    })
+  it('should remove class when trigger not active and not moved', function () {
+    trigger.addHighlightedClass()
+    const hasClassBefore = trigger.triggerElem.classList.contains('hm-slider--trigger-highlighted')
+    const active = false
+    const isMoved = false
+    trigger.toggleHighlightClass(active, isMoved)
+    const hasClassAfter = trigger.triggerElem.classList.contains('hm-slider--trigger-highlighted')
+    assert.isTrue(hasClassBefore, 'class is not present present')
+    assert.isFalse(hasClassAfter, 'class added')
+  })
+})
 
-    it('should return sign if sign specified', function () {
-      let cutSign = '+'
-      let sign = '%'
-      let curVal = 0
-      let initVal = 0
-      let val = trigger.cutSignAddition(sign, cutSign, curVal, initVal)
-      assert(val === sign, 'cut sign do not return')
-    })
+describe('isMoved', function () {
+  it('should not show it was moved from min state if current pexel value is the same as minimum', function () {
+    trigger.currentPixelVal = 300
+    trigger.triggerMinInit = 300
+    assert.isFalse(trigger.isMoved(), 'show that it was moved')
   })
 
-  describe('valueFormated', function () {
-    it('should return short and formated value', function () {
-      assert(trigger.valueFormated(10000000) === '10m', 'wrong val for 10000000')
-      assert(trigger.valueFormated(1000000) === '1.0m', 'wrong val for 1000000')
-      assert(trigger.valueFormated(100000) === '100k', 'wrong val for 100000')
-      assert(trigger.valueFormated(10000) === '10k', 'wrong val for 10000')
-      assert(trigger.valueFormated(1000) === '1k', 'wrong val for 1000')
-      assert(trigger.valueFormated(100) === '100', 'wrong val for 100')
-      assert(trigger.valueFormated(10) === '10', 'wrong val for 10')
-      assert(trigger.valueFormated(5) === '5', 'wrong val for 5')
-      assert(trigger.valueFormated(1) === '1', 'wrong val for 1')
-      assert(trigger.valueFormated(0.3) === '0.3', 'wrong val for 0.3')
-      assert(trigger.valueFormated(0) === '0', 'wrong val for 0')
-    })
+  it('should show moved if current px value is not the same as minimum', function () {
+    trigger.currentPixelVal = 222
+    trigger.triggerMinInit = 0
+    assert.isTrue(trigger.isMoved(), 'show that it was moved')
+  })
+})
+
+describe('updateVisualValue', function () {
+  it('should update innerHTML', function () {
+    const contentBefore = trigger.triggerElem.innerHTML
+    const val = 12345
+    trigger.updateVisualValue(val)
+    const contentAfter = parseInt(trigger.triggerElem.innerHTML)
+    assert.equal(contentAfter, val, 'content did not update')
+    assert.notEqual(contentBefore, contentAfter, 'content left the same')
+  })
+})
+
+describe('triggerElemMaxAllow', function () {
+  it('should return subtraction of sliderWidth, triggerElemWidth, anotherTriggerWidth and anotherTriggerPxValue ', function () {
+    trigger.sliderWidth = 300
+    trigger.triggerElemWidth = 50
+    trigger.anotherTriggerWidth = 50
+    trigger.anotherTriggerPxValue = 133
+    const val1 = trigger.triggerElemMaxAllow()
+    assert.equal(val1, 67, 'wrong calc result')
+    trigger.sliderWidth = 300
+    trigger.triggerElemWidth = 56
+    trigger.anotherTriggerWidth = 67
+    trigger.anotherTriggerPxValue = 133
+    const val2 = trigger.triggerElemMaxAllow()
+    assert(val2 == 44, 'wrong calc result')
+  })
+})
+
+describe('cutSignAddition', function () {
+  it('should return cut sign if sign is not specified', function () {
+    let cutSign = '+'
+    let sign = false
+    let curVal = 0
+    let initVal = 0
+    let val = trigger.cutSignAddition(sign, cutSign, curVal, initVal)
+    assert.equal(val, cutSign, 'cut sign do not return')
   })
 
-  describe('applyTriggerPosition', function () {
-    it('should change left/right style of trigger', function () {
-      const val = 333
-      const pos_before = trigger.triggerElem.style.left
-      trigger.applyTriggerPosition(val)
-      const pos_affter = trigger.triggerElem.style.left
-      assert(pos_before !== pos_affter, 'position did not change')
-      assert(pos_affter === val + 'px', 'changed to wrong position')
-    })
+  it('should return sign if sign specified', function () {
+    let cutSign = '+'
+    let sign = '%'
+    let curVal = 0
+    let initVal = 0
+    let val = trigger.cutSignAddition(sign, cutSign, curVal, initVal)
+    assert.equal(val, sign, 'cut sign do not return')
+  })
+})
+
+describe('valueFormated', function () {
+  it('should return short and formated value', function () {
+    assert.equal(trigger.valueFormated(10000000), '10m', 'wrong val for 10000000')
+    assert.equal(trigger.valueFormated(1000000), '1.0m', 'wrong val for 1000000')
+    assert.equal(trigger.valueFormated(100000), '100k', 'wrong val for 100000')
+    assert.equal(trigger.valueFormated(10000), '10k', 'wrong val for 10000')
+    assert.equal(trigger.valueFormated(1000), '1k', 'wrong val for 1000')
+    assert.equal(trigger.valueFormated(100), '100', 'wrong val for 100')
+    assert.equal(trigger.valueFormated(10), '10', 'wrong val for 10')
+    assert.equal(trigger.valueFormated(5), '5', 'wrong val for 5')
+    assert.equal(trigger.valueFormated(1), '1', 'wrong val for 1')
+    assert.equal(trigger.valueFormated(0.3), '0.3', 'wrong val for 0.3')
+    assert.equal(trigger.valueFormated(0), '0', 'wrong val for 0')
+  })
+})
+
+describe('applyTriggerPosition', function () {
+  it('should change left/right style of trigger', function () {
+    const val = 333
+    const pos_before = trigger.triggerElem.style.left
+    trigger.applyTriggerPosition(val)
+    const pos_affter = trigger.triggerElem.style.left
+    assert.notEqual(pos_before, pos_affter, 'position did not change')
+    assert.equal(pos_affter, val + 'px', 'changed to wrong position')
+  })
+})
+
+describe('resetToInitial', function () {
+  it('should call this.setNewValue with this.dataValue', function () {
+    trigger.setNewValue = sinon.spy()
+    const prom = trigger.resetToInitial()
+    assert.isTrue(trigger.setNewValue.calledOnce, 'setNewValue did not call')
+    assert.isTrue(prom instanceof Promise, 'do not return promise')
   })
 
-  describe('resetToInitial', function () {
-    it('should reset pixel width and update visual number')
+  it('should return promise with object', async function () {
+    const fakeData = {
+      fake: false
+    }
+    sinon.stub(trigger, 'dataToReturn').callsFake(() => fakeData)
+    const prom = trigger.resetToInitial()
+    const data = await prom.then(data => data)
+    assert.deepEqual(data, fakeData, 'return wrong object')
+  })
+})
 
-    it('should update visual value')
+describe('dataToReturn', function () {
+  it('should return object with proper keys', function () {
+    const returnObj = trigger.dataToReturn()
+    const keys = ['data', 'ui', ]
+    const dataKeys = ['cssName', 'opositeCssName', 'value']
+    const uiKeys = ['width', 'value']
 
-    it('should update indicator side')
+    assert.hasAllKeys(returnObj, keys, 'miss "data" or "ui" keys from object')
+    assert.hasAllKeys(returnObj.data, dataKeys, 'miss some keys from object.data')
+    assert.hasAllKeys(returnObj.ui, uiKeys, 'miss some keys from object.ui')
+  })
+})
+
+describe('getVisualValueWithCutSign', function () {
+  it('should return formatted value with cut sign if formatNumber is true', function () {
+    trigger.formatNumber = true
+    trigger.currentVisualVal = 23000
+    trigger.sign = false
+    trigger.cutSign = '+'
+    trigger.dataValue = 23000
+    const val = trigger.getVisualValueWithCutSign()
+    assert.strictEqual(val, '23k+', 'wrong formating of visual value')
   })
 
-  describe('dataToReturn', function () {
-    it('should return object with proper keys', function () {
-      const returnObj = trigger.dataToReturn()
-      const keys = ['data', 'ui', ]
-      const dataKeys = ['cssName', 'opositeCssName', 'value']
-      const uiKeys = ['width', 'value']
-
-      assert.hasAllKeys(returnObj, keys, 'miss "data" or "ui" keys from object')
-      assert.hasAllKeys(returnObj.data, dataKeys, 'miss some keys from object.data')
-      assert.hasAllKeys(returnObj.ui, uiKeys, 'miss some keys from object.ui')
-    })
+  it('should return formatted value without cut sign if current value not on initial state', function () {
+    trigger.formatNumber = true
+    trigger.currentVisualVal = 23000
+    trigger.sign = false
+    trigger.cutSign = '+'
+    trigger.dataValue = 111
+    const val = trigger.getVisualValueWithCutSign()
+    assert.strictEqual(val, '23k', 'wrong formating of visual value')
   })
 
-  describe('getVisualValueWithCutSign', function () {
-    it('should return formatted value with cut sign if formatNumber is true', function () {
-      trigger.formatNumber = true
-      trigger.currentVisualVal = 23000
-      trigger.sign = false
-      trigger.cutSign = '+'
-      trigger.dataValue = 23000
-      const val = trigger.getVisualValueWithCutSign()
-      assert.strictEqual(val, '23k+', 'wrong formating of visual value')
-    })
-
-    it('should return formatted value without cut sign if current value not on initial state', function () {
-      trigger.formatNumber = true
-      trigger.currentVisualVal = 23000
-      trigger.sign = false
-      trigger.cutSign = '+'
-      trigger.dataValue = 111
-      const val = trigger.getVisualValueWithCutSign()
-      assert.strictEqual(val, '23k', 'wrong formating of visual value')
-    })
-
-    it('should return value without cutSign (+/-) if it is not specified', function () {
-      trigger.formatNumber = true
-      trigger.currentVisualVal = 23000
-      trigger.sign = false
-      trigger.cutSign = false
-      trigger.dataValue = 23000
-      const val = trigger.getVisualValueWithCutSign()
-      assert.strictEqual(val, '23k', 'wrong formating of visual value')
-    })
-
-    it('should return long version of value if formating not set', function () {
-      trigger.formatNumber = false
-      trigger.currentVisualVal = 23000
-      trigger.sign = false
-      trigger.cutSign = false
-      const val = trigger.getVisualValueWithCutSign()
-      assert.strictEqual(val, '23000', 'wrong formating of visual value')
-    })
+  it('should return value without cutSign (+/-) if it is not specified', function () {
+    trigger.formatNumber = true
+    trigger.currentVisualVal = 23000
+    trigger.sign = false
+    trigger.cutSign = false
+    trigger.dataValue = 23000
+    const val = trigger.getVisualValueWithCutSign()
+    assert.strictEqual(val, '23k', 'wrong formating of visual value')
   })
 
-  describe('updateCurrentState', function () {
-    it('should update current state', function () {
-      const stateBefore = JSON.parse(JSON.stringify(trigger))
-      trigger.sliderWidth = 400
-      trigger.triggerElemWidth = 50
-      trigger.anotherTriggerWidth = 50
-      trigger.anotherTriggerPxValue = 70
-      trigger.triggerMinInit = 0
-      trigger.step = 1
-      trigger.minMaxDiapazon = 2500
+  it('should return long version of value if formating not set', function () {
+    trigger.formatNumber = false
+    trigger.currentVisualVal = 23000
+    trigger.sign = false
+    trigger.cutSign = false
+    const val = trigger.getVisualValueWithCutSign()
+    assert.strictEqual(val, '23000', 'wrong formating of visual value')
+  })
+})
 
-      trigger.updateCurrentState(345)
+describe('updateCurrentState', function () {
+  it('should update current state', function () {
+    const stateBefore = JSON.parse(JSON.stringify(trigger))
+    trigger.sliderWidth = 400
+    trigger.triggerElemWidth = 50
+    trigger.anotherTriggerWidth = 50
+    trigger.anotherTriggerPxValue = 70
+    trigger.triggerMinInit = 0
+    trigger.step = 1
+    trigger.minMaxDiapazon = 2500
 
-      const stateAfter = JSON.parse(JSON.stringify(trigger))
-      assert.notEqual(stateBefore.currentVisualVal, stateAfter.currentVisualVal, 'currentVisualVal did not cahnge')
-      assert.notEqual(stateBefore.$currentPixelVal, stateAfter.$currentPixelVal, '$currentPixelVal did not change')
-      assert.notDeepEqual(stateBefore, stateAfter, 'state did not change')
-    })
+    trigger.updateCurrentState(345)
 
-    it('should update currentPixelVal', function () {
-      trigger.currentPixelVal = 123
-      const valBefore = trigger.currentPixelVal
-      trigger.updateCurrentState(345)
-      const valAfter = trigger.currentPixelVal
-      assert.equal(valBefore, 123)
-      assert.notEqual(valBefore, valAfter, 'currentPixelVal did not change')
-    })
-
-    it('should update currentVisualVal', function () {
-      trigger.minMaxDiapazon = 444
-      trigger.currentPixelVal = 123
-      trigger.triggerMinInit = 0
-      trigger.sliderWidth = 600
-      trigger.triggerElemWidth = 50
-      trigger.anotherTriggerWidth = 50
-      trigger.anotherTriggerPxValue = 50
-
-      const valBefore = trigger.currentVisualVal
-      trigger.updateCurrentState(345)
-      const valAfter = trigger.currentVisualVal
-
-      assert.equal(valBefore, 123)
-      assert.notEqual(valBefore, valAfter, 'currentPixelVal did not change')
-    })
+    const stateAfter = JSON.parse(JSON.stringify(trigger))
+    assert.notEqual(stateBefore.currentVisualVal, stateAfter.currentVisualVal, 'currentVisualVal did not cahnge')
+    assert.notEqual(stateBefore.currentPixelVal, stateAfter.currentPixelVal, 'currentPixelVal did not change')
+    assert.notDeepEqual(stateBefore, stateAfter, 'state did not change')
   })
 
-  describe('formatValueOrNot', function () {
-    it('should return string with formated value if this.formatNumber', function () {
-      trigger.formatNumber = true
-      trigger.currentVisualVal = 300000
-      const val = trigger.formatValueOrNot()
-      assert.isString(val, 'formatted value is not a string')
-      assert.notEqual(val, '300000', 'did not format value if value is 300000')
-    })
-
-    it('should return string with decimal if not this.formatNumber', function () {
-      trigger.formatNumber = false
-      trigger.currentVisualVal = 123.2345
-      const val = trigger.formatValueOrNot()
-      assert.isString(val, 'value is not a string')
-      assert.equal(val, '123.23', 'value did not parseFloated and toFixed(2)')
-    })
+  it('should update currentPixelVal', function () {
+    trigger.currentPixelVal = 123
+    const valBefore = trigger.currentPixelVal
+    trigger.updateCurrentState(345)
+    const valAfter = trigger.currentPixelVal
+    assert.equal(valBefore, 123)
+    assert.notEqual(valBefore, valAfter, 'currentPixelVal did not change')
   })
 
-  describe('minMaxPxRange', function () {
-    it('should return proper calculation of sliderWidth triggerElemWidth anotherTriggerWidth', function () {
-      trigger.sliderWidth = 200
-      trigger.triggerElemWidth = 50
-      trigger.anotherTriggerWidth = 50
-      const val = trigger.minMaxPxRange()
-      assert.equal(val, 100, 'wrong value')
-    })
+  it('should update currentVisualVal', function () {
+    trigger.minMaxDiapazon = 444
+    trigger.currentPixelVal = 123
+    trigger.triggerMinInit = 0
+    trigger.sliderWidth = 600
+    trigger.triggerElemWidth = 50
+    trigger.anotherTriggerWidth = 50
+    trigger.anotherTriggerPxValue = 50
+
+    const valBefore = trigger.currentVisualVal
+    trigger.updateCurrentState(345)
+    const valAfter = trigger.currentVisualVal
+
+    assert.equal(valBefore, 123)
+    assert.notEqual(valBefore, valAfter, 'currentPixelVal did not change')
+  })
+})
+
+describe('formatValueOrNot', function () {
+  it('should return string with formated value if this.formatNumber', function () {
+    trigger.formatNumber = true
+    trigger.currentVisualVal = 300000
+    const val = trigger.formatValueOrNot()
+    assert.isString(val, 'formatted value is not a string')
+    assert.notEqual(val, '300000', 'did not format value if value is 300000')
   })
 
-  describe('getGainedPxFromVisualVal', function () {
-    it('should return px value of trigger position according to trigger visual value', function () {
-      trigger.sliderWidth = 200
-      trigger.triggerElemWidth = 50
-      trigger.anotherTriggerWidth = 50
+  it('should return string with decimal if not this.formatNumber', function () {
+    trigger.formatNumber = false
+    trigger.currentVisualVal = 123.2345
+    const val = trigger.formatValueOrNot()
+    assert.isString(val, 'value is not a string')
+    assert.equal(val, '123.23', 'value did not parseFloated and toFixed(2)')
+  })
+})
 
-      trigger.minMaxDiapazon = 300
-      trigger.dataValue = 50
+describe('minMaxPxRange', function () {
+  it('should return proper calculation of sliderWidth triggerElemWidth anotherTriggerWidth', function () {
+    trigger.sliderWidth = 200
+    trigger.triggerElemWidth = 50
+    trigger.anotherTriggerWidth = 50
+    const val = trigger.minMaxPxRange()
+    assert.equal(val, 100, 'wrong value')
+  })
+})
 
-      const val = trigger.getGainedPxFromVisualVal(200)
-      assert.equal(val, 50, 'wrong transformation visual value in to px position')
-    })
+describe('getGainedPxFromVisualVal', function () {
+  it('should return px value of trigger position according to trigger visual value', function () {
+    trigger.sliderWidth = 200
+    trigger.triggerElemWidth = 50
+    trigger.anotherTriggerWidth = 50
 
-    it('should return same value event if new value lower than 0', function () {
-      trigger.sliderWidth = 200
-      trigger.triggerElemWidth = 50
-      trigger.anotherTriggerWidth = 50
+    trigger.minMaxDiapazon = 300
+    trigger.dataValue = 50
 
-      trigger.minMaxDiapazon = 300
-      trigger.dataValue = 50
-
-      const val = trigger.getGainedPxFromVisualVal(-100)
-      assert.equal(val, 50, 'wrong transformation visual value in to px position')
-    })
-
+    const val = trigger.getGainedPxFromVisualVal(200)
+    assert.equal(val, 50, 'wrong transformation visual value in to px position')
   })
 
-  describe('setNewValue', function () {
-    it('should update current state', function () {
-      const stateBefore = JSON.parse(JSON.stringify(trigger))
-      trigger.sliderWidth = 400
-      trigger.triggerElemWidth = 50
-      trigger.anotherTriggerWidth = 50
-      trigger.anotherTriggerPxValue = 70
-      trigger.triggerMinInit = 0
-      trigger.step = 1
-      trigger.minMaxDiapazon = 2500
+  it('should return same value event if new value lower than 0', function () {
+    trigger.sliderWidth = 200
+    trigger.triggerElemWidth = 50
+    trigger.anotherTriggerWidth = 50
 
-      trigger.setNewValue(345)
+    trigger.minMaxDiapazon = 300
+    trigger.dataValue = 50
 
-      const stateAfter = JSON.parse(JSON.stringify(trigger))
-      assert.equal(stateBefore.currentVisualVal, stateAfter.currentVisualVal, 'currentVisualVal did cahnge')
-      assert.notEqual(stateBefore.$currentPixelVal, stateAfter.$currentPixelVal, '$currentPixelVal did not change')
-      assert.notDeepEqual(stateBefore, stateAfter, 'state did not change')
-    })
-
-    it('should update visual value with cut sign or not', function () {
-      trigger.triggerElem.innerHTML = 222
-      const contentBefore = trigger.triggerElem.innerHTML
-      trigger.sliderWidth = 400
-      trigger.triggerElemWidth = 50
-      trigger.anotherTriggerWidth = 50
-      trigger.anotherTriggerPxValue = 70
-      trigger.triggerMinInit = 0
-      trigger.dataValue = 22
-
-      trigger.setNewValue(111)
-
-      const contentAfter = parseInt(trigger.triggerElem.innerHTML)
-      assert.notEqual(contentBefore, contentAfter, 'content left the same')
-      assert.equal(contentAfter, 111, 'wrong visual value')
-    })
-
-    it('should update indicator')
-    it('should apply trigger position')
-    it('should stop event')
-    it('should notify Slider with return data')
+    const val = trigger.getGainedPxFromVisualVal(-100)
+    assert.equal(val, 50, 'wrong transformation visual value in to px position')
   })
+
+})
+
+describe('setNewValue', function () {
+  it('should execute all 7 functions', function () {
+    trigger.getGainedPxFromVisualVal = sinon.spy()
+    trigger.updateCurrentState = sinon.spy()
+    trigger.updateVisualValue = sinon.spy()
+    trigger.updateIndicator = sinon.spy()
+    trigger.applyTriggerPosition = sinon.spy()
+    trigger.eventStop = sinon.spy()
+    trigger.nofity = sinon.spy()
+    trigger.getVisualValueWithCutSign = sinon.spy()
+    trigger.dataToReturn = sinon.spy()
+
+    trigger.setNewValue(345)
+
+    assert.isTrue(trigger.getGainedPxFromVisualVal.calledOnce, 'getGainedPxFromVisualVal was not executed once')
+    assert.isTrue(trigger.updateCurrentState.calledOnce, 'updateCurrentState was not executed once')
+    assert.isTrue(trigger.updateVisualValue.calledOnce, 'updateVisualValue was not executed once')
+    assert.isTrue(trigger.updateIndicator.calledOnce, 'updateIndicator was not executed once')
+    assert.isTrue(trigger.applyTriggerPosition.calledOnce, 'applyTriggerPosition was not executed once')
+    assert.isTrue(trigger.eventStop.calledOnce, 'eventStop was not executed once')
+    assert.isTrue(trigger.nofity.calledOnce, 'nofity was not executed once')
+    assert.isTrue(trigger.getVisualValueWithCutSign.calledOnce, 'getVisualValueWithCutSign was not executed once')
+    sinon.assert.callCount(trigger.dataToReturn, 2, 'this.dataToReturn() was not called twice')
+  })
+})
+
+describe('updatePosition', function () {
+  it('should set new value with disabled max allowed width', function () {
+    trigger.setNewValue = sinon.spy()
+    trigger.currentVisualVal = 300
+    trigger.updatePosition()
+    const assertion = trigger.setNewValue.calledOnceWith(trigger.currentVisualVal, true)
+    assert.isTrue(assertion, 'function calledOnceWith was called with wrong args')
+  })
+})
+
+describe('moveTrigger', function () {
+  it('should get new value and update current state', function () {
+    trigger.movedCursorValue = sinon.spy()
+    trigger.updateCurrentState = sinon.spy()
+    const mouseMove = new MouseEvent('mousemove', {
+      clientX: 333
+    })
+    trigger.moveTrigger(mouseMove)
+    assert.isTrue(trigger.movedCursorValue.calledOnce, 'movedCursorValue did not call')
+    assert.isTrue(trigger.updateCurrentState.calledOnce, 'updateCurrentState did not call')
+  })
+
+  it('should not make actions if new pixel value did not changed')
+  it('should make actions if new pixel value did changed')
 })
