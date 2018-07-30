@@ -59,7 +59,7 @@ export default class Trigger {
     this.nofity(this.dataToReturn())
     this.onStart(this.dataToReturn())
 
-    // EVENTS
+    // EVENTS // T
     this.triggerElem.addEventListener('mousedown', ev => {
       this.isTouchDevice = false
       this.eventStart(ev)
@@ -68,10 +68,10 @@ export default class Trigger {
       this.isTouchDevice = true
       this.eventStart(ev)
     })
-    document.addEventListener('mouseup', this.eventStop.bind(this))
-    document.addEventListener('touchend', this.eventStop.bind(this))
-    document.addEventListener('mousemove', this.eventMove.bind(this))
-    document.addEventListener('touchmove', this.eventMove.bind(this))
+    document.addEventListener('mouseup', ev => this.eventStop(ev))
+    document.addEventListener('touchend', ev => this.eventStop(ev))
+    document.addEventListener('mousemove', ev => this.eventMove(ev))
+    document.addEventListener('touchmove', ev => this.eventMove(ev))
 
     const vusualValWithCutSign = this.getVisualValueWithCutSign()
     this.updateVisualValue(vusualValWithCutSign)

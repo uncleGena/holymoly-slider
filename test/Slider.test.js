@@ -109,5 +109,26 @@ describe('changeIndicatorSideValue', function () {
 })
 
 describe('updateTriggersSliderWidth', function () {
-  it('should update sliderWidth for each trigger')
+  it('should update sliderWidth for each trigger', function () {
+    const widthsBefore = slider.triggers.map(tr => tr.sliderWidth)
+    const val = 333
+    slider.updateTriggersSliderWidth(val)
+    const widthsAfter = slider.triggers.map(tr => tr.sliderWidth)
+    assert.notEqual(widthsBefore, widthsAfter, 'updateTriggersSliderWidth not updates triggers widths')
+  })
+})
+
+describe('toggleAnimatingState', function () {
+  it('should change animating state in triggers and middle area (indicator sides)', function () {
+    slider.triggers.forEach(o => o.isAnimating = true)
+    slider.indicatorSides.forEach(o => o.isAnimating = true)
+
+    slider.toggleAnimatingState(false)
+
+    const triggersAnimatingStatesAfter = slider.triggers.map(o => o.isAnimating)
+    const indicatorSidesAnimatingStatesAfter = slider.triggers.map(o => o.isAnimating)
+
+    assert.deepEqual(triggersAnimatingStatesAfter, [false ,false])
+    assert.deepEqual(indicatorSidesAnimatingStatesAfter, [false, false])
+  })
 })

@@ -46,7 +46,8 @@ beforeEach(function () {
     cssName: 'left',
     element: element,
     sliderWidth: 200,
-    minMaxDiapazon: 345
+    minMaxDiapazon: 345,
+    opositeCssName: 'right'
   })
 })
 
@@ -64,10 +65,6 @@ describe('Slider element', function () {
   it('should has an element which is HTMLElement', function () {
     assert(trigger.triggerElem instanceof HTMLElement, 'triggerElem is not a HTMLElement')
   })
-})
-
-describe('constructor', function () {
-  it('should add event listener with four events')
 })
 
 describe('evPageX function', function () {
@@ -608,4 +605,110 @@ describe('moveTrigger', function () {
 
   it('should not make actions if new pixel value did not changed')
   it('should make actions if new pixel value did changed')
+})
+
+describe('constructor', function () {
+  it('should add event listener on mouseup', function () {
+    trigger.eventStop = sinon.spy();
+    let ev = new MouseEvent('mouseup', {
+      clientX: 5
+    })
+    document.dispatchEvent(ev)
+    assert.equal(trigger.eventStop.callCount, 1, 'mouseup event was not called once')
+  })
+
+  it('should add event listener on touchend', function () {
+    trigger.eventStop = sinon.spy();
+    let ev = new TouchEvent('touchend', {
+      changedTouches: [{
+        clientX: 333
+      }]
+    })
+    document.dispatchEvent(ev)
+    assert.equal(trigger.eventStop.callCount, 1, 'touchend event was not called once')
+  })
+
+  it('should add event listener on mousemove', function () {
+    trigger.eventMove = sinon.spy();
+    let ev = new MouseEvent('mousemove')
+    document.dispatchEvent(ev)
+    assert.equal(trigger.eventMove.callCount, 1, 'mousemove event was not called once')
+  })
+
+  it('should add event listener on touchmove', function () {
+    trigger.eventMove = sinon.spy();
+    let ev = new TouchEvent('touchmove')
+    document.dispatchEvent(ev)
+    assert.equal(trigger.eventMove.callCount, 1, 'touchmove event was not called once')
+  })
+
+  it('should add event listener "mousedown" to trigger element', function () {
+    trigger.isTouchDevice = true
+    trigger.eventStart = sinon.spy();
+    let ev = new MouseEvent('mousedown')
+
+    trigger.triggerElem.dispatchEvent(ev)
+
+    assert.equal(trigger.eventStart.callCount, 1, 'mousedown event was not called once')
+    assert.isFalse(trigger.isTouchDevice, 'did change isTouchDevice to false')
+  })
+
+  it('should add event listener "touchstart" to trigger element', function () {
+    trigger.isTouchDevice = false
+    trigger.eventStart = sinon.spy();
+    let ev = new MouseEvent('touchstart')
+
+    trigger.triggerElem.dispatchEvent(ev)
+
+    assert.equal(trigger.eventStart.callCount, 1, 'touchstart event was not called once')
+    assert.isTrue(trigger.isTouchDevice, 'did change isTouchDevice to false')
+  })
+
+  it('should fire functions', function () {
+    trigger = null
+    Trigger.prototype.updateVisualValue = sinon.spy()
+
+    const direction = 'left'
+    const element = document.querySelector(`[data-hm-slider] [data-trigger="${direction}"]`)
+    trigger = new Trigger({
+      dataName: 'hmSliderMin',
+      dataValue: 123,
+      cssName: 'left',
+      element: element,
+      sliderWidth: 200,
+      onStart: sinon.spy(),
+      notify: sinon.spy(),
+      minMaxDiapazon: 345
+    })
+    assert.equal(trigger.updateVisualValue.callCount, 1, 'updateVisualValue was not called once')
+    assert.equal(trigger.nofity.callCount, 1, 'nofity was not called once')
+    assert.equal(trigger.onStart.callCount, 1, 'onStart was not called once')
+  })
+
+  it('should has props', function () {
+    assert.isDefined(trigger.triggerMinInit, 'triggerMinInit not present in constructor')
+    assert.isDefined(trigger.triggerMin, 'triggerMin not present in constructor')
+    assert.isDefined(trigger.triggerElemWidth, 'triggerElemWidth not present in constructor')
+    assert.isDefined(trigger.currentPixelVal, 'currentPixelVal not present in constructor')
+    assert.isDefined(trigger.currentVisualVal, 'currentVisualVal not present in constructor')
+    assert.isDefined(trigger.anotherTriggerWidth, 'anotherTriggerWidth not present in constructor')
+    assert.isDefined(trigger.anotherTriggerPxValue, 'anotherTriggerPxValue not present in constructor')
+    assert.isDefined(trigger.dataName, 'dataName not present in constructor')
+    assert.isDefined(trigger.dataValue, 'dataValue not present in constructor')
+    assert.isDefined(trigger.cssName, 'cssName not present in constructor')
+    assert.isDefined(trigger.opositeCssName, 'opositeCssName not present in constructor')
+    assert.isDefined(trigger.triggerElem, 'triggerElem not present in constructor')
+    assert.isDefined(trigger.sliderWidth, 'sliderWidth not present in constructor')
+    assert.isDefined(trigger.minMaxDiapazon, 'minMaxDiapazon not present in constructor')
+    assert.isDefined(trigger.nofity, 'nofity not present in constructor')
+    assert.isDefined(trigger.onStart, 'onStart not present in constructor')
+    assert.isDefined(trigger.onChangeStart, 'onChangeStart not present in constructor')
+    assert.isDefined(trigger.onChange, 'onChange not present in constructor')
+    assert.isDefined(trigger.onChangeEnd, 'onChangeEnd not present in constructor')
+    assert.isDefined(trigger.valuePerStep, 'valuePerStep not present in constructor')
+    assert.isDefined(trigger.step, 'step not present in constructor')
+    assert.isDefined(trigger.updateIndicator, 'updateIndicator not present in constructor')
+    assert.isDefined(trigger.formatNumber, 'formatNumber not present in constructor')
+    assert.isDefined(trigger.sign, 'sign not present in constructor')
+  })
 })

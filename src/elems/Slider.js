@@ -185,20 +185,20 @@ export default class Slider {
     this.updateTriggersSliderWidth(val)
   }
 
-  updateTriggersSliderWidth(val) { // P
+  updateTriggersSliderWidth(val) { // T
     this.triggers.forEach(o => {
       o.sliderWidth = val
     })
   }
 
-  toggleAnimatingState(bool) {
+  toggleAnimatingState(bool) { // T
     this.triggers.forEach(o => o.isAnimating = bool)
     this.indicatorSides.forEach(o => o.isAnimating = bool)
   }
 
-  valInAllowedRange(val) {
-    return (val < this.sliderVisualMin || val > this.sliderVisualMax) ? false : true
-  }
+  // valInAllowedRange(val) {
+  //   return (val < this.sliderVisualMin || val > this.sliderVisualMax) ? false : true
+  // }
 
   setParamsIsValid(params) {
     const newMin = params['hmSliderMin']
